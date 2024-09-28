@@ -1,3 +1,7 @@
+# Deployed app link:
+https://elrc-app-dfcfc7cd862b.herokuapp.com/
+_____________________________________________________________________
+# Legacy Readme:
 # Synergistic Leadership Theory Survey Application
 
 [![Test Coverage](https://api.codeclimate.com/v1/badges/62f4dd4fb092b4211973/test_coverage)](https://codeclimate.com/repos/65caed0abc0d27237b1794c9/test_coverage)
