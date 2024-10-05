@@ -45,6 +45,10 @@ class SurveyResponse < ApplicationRecord
     params.nil? ? SecureRandom.hex(3) : params[:share_code] || SecureRandom.hex(3)
   end
 
+  def self.get_all_responses(page: 1, per_page: 20)
+    SurveyResponse.includes(:profile).order(created_at: :desc).page(page).per(per_page)
+  end
+
   def self.create_survey_response(profile, share_code)
     SurveyResponse.create(profile:, share_code:)
   end
