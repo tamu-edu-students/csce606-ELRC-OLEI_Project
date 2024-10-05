@@ -14,9 +14,9 @@ _____________________________________________________________________
 
 - [Deployed Application](https://elrc-app-dfcfc7cd862b.herokuapp.com/)
 - [Code Climate Reports](https://codeclimate.com/repos/65caed0abc0d27237b1794c9/maintainability)
-- [GitHub Repo](https://github.com/tamu-edu-students/csce606-ELRC-Synergistic-Leadership-Theory)
-- [Pivotal Tracker](https://www.pivotaltracker.com/n/projects/2690137)
-- [Slack](https://app.slack.com/client/T06GRHECJEM/C06GY2R74KX)
+- [GitHub Repo](https://github.com/tamu-edu-students/csce606-ELRC-OLEI_Project)
+- [Pivotal Tracker](https://www.pivotaltracker.com/n/projects/2720653)
+- [Slack](https://app.slack.com/client/T07NQ098G0G/C07NE1HS2BB)
 
 <details open="open">
 <summary>Table of Contents</summary>
