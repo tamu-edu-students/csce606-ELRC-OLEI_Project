@@ -1,4 +1,4 @@
-**Link to the Team Working Agreement: **
+**Link to the Team Working Agreement:**
 https://drive.google.com/file/d/16uUZbFhEMnh5MCQcVUXWtCvOM4edJY95/view?usp=sharing
 
 _____________________________________________________________________
