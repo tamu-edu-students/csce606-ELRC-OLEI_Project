@@ -70,9 +70,9 @@ cd rails_root
 echo "<master key here>" > ./config/master.key
 ```
 
-Running database locally (Using SQLite only)
+Running database locally
 
-`bundle config set --local without 'production' `(Otherwise ``brew install pg``)
+`bundle config set --local without 'production' ` (Using SQLite only otherwise ``brew install pg``)
 
 Generate database
 
