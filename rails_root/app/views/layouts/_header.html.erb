@@ -33,7 +33,10 @@
         <% if session[:userinfo] %>
           <%= button_to 'Logout', root_url + '/auth/logout', method: :get, data: { turbo: false }, class: "nav-link" %>
         <% else %>
-          <%= button_to 'Login', '/auth/auth0', method: :post, data: { turbo: false }, class: "nav-link" %>
+          <div class="nav-item" style="display: flex; flex-direction: column; align-items: flex-start;">
+            <%= button_to 'Login', '/auth/auth0', method: :post, data: { turbo: false }, class: "nav-link" %>
+            <%= button_to 'Login as Admin', '/admin/auth0', method: :post, data: { turbo: false }, class: "nav-link", style: "cursor: pointer;" %>
+          </div>
         <% end %>
       </li>
     </ul>
