@@ -42,6 +42,7 @@ sorbet
 
 .vscode
 
-# .DS_Store
-.DS_Store
+# Ignore for mac
+*.DS_Store
 */.DS_Store
+*/*/.DS_Store
