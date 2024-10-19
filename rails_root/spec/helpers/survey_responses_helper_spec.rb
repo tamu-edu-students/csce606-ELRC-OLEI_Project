@@ -35,6 +35,7 @@ RSpec.describe SurveyResponsesHelper, type: :helper do
       share_code: '123456'
     )
   end
+
   let(:survey_question) do
     SurveyQuestion.create!(
       text: 'Question',
@@ -117,6 +118,10 @@ RSpec.describe SurveyResponsesHelper, type: :helper do
       # returns average score of the survey response answers
       expect(helper.average_score(survey_response)).to eq(survey_response.answers.average(:choice).to_f)
     end
+
+    it 'returns nil when response has no answers' do
+      expect(helper.average_score(survey_response)).to eq(0.0)
+    end
   end
 
   describe '#formatted_date' do
@@ -128,6 +133,11 @@ RSpec.describe SurveyResponsesHelper, type: :helper do
   describe '#user_of_response' do
     it 'returns the user of a survey response' do
       expect(helper.user_of_response(survey_response)).to eq(survey_response.profile_id)
+    end
+
+    it 'returns nil if the survey response does not have a user' do
+      survey_response.update(profile_id: nil)
+      expect(helper.user_of_response(survey_response)).to eq(nil)
     end
   end
 
@@ -170,12 +180,21 @@ RSpec.describe SurveyResponsesHelper, type: :helper do
       end
       expect(ids).to eq([2, 4])
     end
+
+    it 'returns an empty array if no teacher responses exist' do
+      expect(helper.find_teachers(survey_response).pluck(:id)).to eq([])
+    end
   end
 
   describe '#find_superintendent' do
     it 'returns survey responses of superintendent having same share code with principal' do
       survey_answers
       expect(helper.find_superintendent(survey_response).id).to eq(3)
+    end
+
+    it 'returns nil if no superintendent response exists' do
+      survey_response3.destroy
+      expect(helper.find_superintendent(survey_response)).to eq(nil)
     end
   end
 
@@ -193,13 +212,10 @@ RSpec.describe SurveyResponsesHelper, type: :helper do
   end
 
   describe '#get_part_difference' do
-    it 'returns a list the average difference in choices by part against the superintendent' do
+    it 'returns the average difference in choices by part compared to the superintendent' do
       survey_answers
-
-      expected = [0, 0, 0, 0]
-
       other_response = helper.find_superintendent(survey_response)
-      expect(helper.get_part_difference(survey_response, other_response)).to eq expected
+      expect(helper.get_part_difference(survey_response, other_response)).to eq([0, 0, 0, 0])
     end
   end
 
@@ -209,6 +225,11 @@ RSpec.describe SurveyResponsesHelper, type: :helper do
 
       expected = [0, 0, 0, 0]
       expect(helper.get_teacher_part_difference(survey_response)).to eq expected
+    end
+
+    it 'returns 0 for parts with no teacher answers' do
+      empty_response = SurveyResponse.create!(profile_id: survey_profile.id, share_code: '654321')
+      expect(helper.get_teacher_part_difference(empty_response)).to eq([0, 0, 0, 0])
     end
   end
 end
