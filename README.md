@@ -154,5 +154,3 @@ heroku run rails db:seed
 * [Legacy Code](https://github.com/tamu-edu-students/csce606-ELRC-Synergistic-Leadership-Theory)
 
 
-# demo check commit
-# second demo push

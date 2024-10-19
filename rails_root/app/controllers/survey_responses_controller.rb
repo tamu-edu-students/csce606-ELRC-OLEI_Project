@@ -25,6 +25,7 @@ class SurveyResponsesController < ApplicationController
   def show
     return return_to_root 'You are not logged in.' if current_user_id.nil?
     return return_to_root 'You cannot view this result.' if current_user_id != @survey_response.profile.user_id
+    
 
     flash.keep(:warning)
   end

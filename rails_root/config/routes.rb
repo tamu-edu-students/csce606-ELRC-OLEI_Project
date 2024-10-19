@@ -8,7 +8,9 @@ Rails.application.routes.draw do
 
   get 'home/index'
   get 'about', to: 'about#index'
-  get '/admin', to: 'admins#index'
+  get '/admin', to: 'admins#index', as: 'admin_dashboard'
+  #get 'survey_responses/:id', to: 'survey_responses#show', as: 'survey_response'
+
 
   # get 'survey', to: 'survey_responses#new', as: 'survey'
   # get 'survey/page/:page', to: 'survey_responses#survey', as: 'survey_page'
