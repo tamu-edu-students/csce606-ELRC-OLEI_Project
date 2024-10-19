@@ -95,13 +95,16 @@ module SurveyResponsesHelper
         0
       else
         difference = 0
+        nonempty_answers = answers.select { |ans| !ans.choice.nil? }
 
-        answers.each do |x|
+        nonempty_answers.each do |x|
           teacher_choice = teacher_answers[x.question_id]
           difference += (x.choice - teacher_choice).abs unless teacher_choice.nil?
         end
 
-        (difference.to_f / answers.length).round
+        length = nonempty_answers.length - teacher_answers.select { |_, v| v.nil? }.length
+
+        (difference.to_f / length).round
       end
     end
   end
@@ -122,13 +125,14 @@ module SurveyResponsesHelper
         0
       else
         difference = 0
-
-        answers.each do |x|
+        nonempty_answers = answers.select { |ans| !ans.choice.nil? }
+        nonempty_answers.each do |x|
           other_choice = other_answers.detect { |y| x.question_id == y.question_id }
-          difference += (x.choice - other_choice.choice).abs unless other_choice.nil?
+          difference += (x.choice - other_choice.choice).abs unless (other_choice.nil?)
         end
 
-        (difference.to_f / answers.length).round
+        length = nonempty_answers.length - other_answers.select { |ans| ans.choice.nil? }.length
+        (difference.to_f / length).round
       end
     end
   end
