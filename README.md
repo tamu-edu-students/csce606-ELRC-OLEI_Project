@@ -5,7 +5,7 @@ https://drive.google.com/file/d/16uUZbFhEMnh5MCQcVUXWtCvOM4edJY95/view?usp=shari
 
 # Deployed app link:
 
-https://elrc-app-dfcfc7cd862b.herokuapp.com/
+https://elrc-6ad76821be30.herokuapp.com/
 
 ---
 
