@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 # Step definition for navigating to the homepage
 Given('I am on the homepage') do
   visit root_path
-  expect(page).to have_current_path(root_path)  # Ensure the user is on the homepage
+  expect(page).to have_current_path(root_path) # Ensure the user is on the homepage
 end
 
 Given('I have logged in as a {string}') do |role|
   # Create a user with the specified role (principal, teacher, superintendent)
-  @user = FactoryBot.create(:survey_profile, role: role)
+  @user = FactoryBot.create(:survey_profile, role:)
   allow_any_instance_of(ApplicationController).to receive(:current_user_id).and_return(@user.user_id)
 end
 
