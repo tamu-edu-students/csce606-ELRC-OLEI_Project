@@ -55,7 +55,8 @@ Given('I try to login') do
                                                                    exp: 1_711_457_339,
                                                                    sub: 'google-oauth2|100507718411999601151',
                                                                    sid: 'b1v1crbXvTut5AmBX5U-DW0UUpeHbAND',
-                                                                   nonce: 'e2578aabacb8d6b201c06f165146c6fa'
+                                                                   nonce: 'e2578aabacb8d6b201c06f165146c6fa',
+                                                                   'https://myapp.com/123456789012/roles/roles' => []
                                                                  }
                                                                } })
 

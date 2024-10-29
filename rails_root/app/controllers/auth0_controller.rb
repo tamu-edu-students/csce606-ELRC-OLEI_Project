@@ -8,8 +8,15 @@ class Auth0Controller < ApplicationController
     # Refer to https://github.com/auth0/omniauth-auth0/blob/master/EXAMPLES.md#example-of-the-resulting-authentication-hash for complete information on 'omniauth.auth' contents.
 
     auth_info = request.env['omniauth.auth']
+    user_roles = auth_info['extra']['raw_info']['https://myapp.com/123456789012/roles/roles']
     # puts JSON.pretty_generate(auth_info)
     session[:userinfo] = auth_info['extra']['raw_info']
+
+    # # puts 'Entered Callback!!!'
+    # puts "========== auth_info JSON =========="
+    # puts JSON.pretty_generate(auth_info)
+    # puts "========== End of auth_info =========="
+
 
     # print session info in pretty JSON format
     # puts JSON.pretty_generate(session[:userinfo])
@@ -18,8 +25,9 @@ class Auth0Controller < ApplicationController
     # if no survey profile contains unique user_id, create a new survey profile
     # puts 'trying to find survey profile'
     # puts SurveyProfile.find_by(user_id: session[:userinfo]['sub'])
-
-    if SurveyProfile.find_by(user_id: session[:userinfo]['sub']).nil?
+    if user_roles && user_roles.include?('Admin')
+      redirect_to admin_path
+    elsif SurveyProfile.find_by(user_id: session[:userinfo]['sub']).nil?
       redirect_to new_survey_profile_path
     elsif session[:invitation] && claim_invitation
       # Nothing to do here, claim_invitation already did the redirect

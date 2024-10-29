@@ -41,3 +41,5 @@ coverage/*
 sorbet
 
 .vscode
+
+/config/credentials/development.key
