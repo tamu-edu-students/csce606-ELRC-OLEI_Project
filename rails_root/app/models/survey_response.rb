@@ -16,10 +16,10 @@ class SurveyResponse < ApplicationRecord
   belongs_to :profile,
              class_name: 'SurveyProfile'
 
-  has_many :invitations,
-           foreign_key: :parent_response_id,
-           class_name: 'Invitation',
-           dependent: :destroy
+  has_many :invitations, 
+            foreign_key: :parent_response_id, 
+            class_name: 'Invitation',
+            dependent: :destroy
 
   def self.create_from_params(user_id, params)
     # FIXME: When we look up things and fail, we should use more descriptive exceptions instead of ActiveRecord::RecordNotFound
