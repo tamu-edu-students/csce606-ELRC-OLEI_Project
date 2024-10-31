@@ -6,10 +6,10 @@ class Auth0Controller < ApplicationController
     auth_info = request.env['omniauth.auth']
     user_roles = auth_info['extra']['raw_info']['https://myapp.com/123456789012/roles/roles']
     session[:userinfo] = auth_info['extra']['raw_info']
-  
+    
     # Check if the user has an Admin role
     if user_roles && user_roles.include?('Admin')
-      redirect_to admin_dashboard_path  # Changed to admin_dashboard_path
+      redirect_to admin_dashboard_path
     elsif SurveyProfile.find_by(user_id: session[:userinfo]['sub']).nil?
       redirect_to new_survey_profile_path
     elsif session[:invitation] && claim_invitation
