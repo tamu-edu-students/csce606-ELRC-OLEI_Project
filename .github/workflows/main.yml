@@ -44,12 +44,12 @@ jobs:
           COVERAGE=true bundle exec rspec
           COVERAGE=true bundle exec cucumber
 
-      # - name: Upload coverage report
-      #   if: '!cancelled()'
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: coverage
-      #     path: coverage
+      - name: Upload coverage report
+        if: '!cancelled()'
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: coverage
 
       - name: Rubocop Report
         if: '!cancelled()'
