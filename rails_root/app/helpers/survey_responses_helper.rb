@@ -27,7 +27,7 @@ module SurveyResponsesHelper
       [4, 5]
     ]
 
-    supervisee_responses = find_supervisee(response)
+    supervisee_responses = find_supervisees(response)
 
     parts.map do |sections|
       answers = {}
