@@ -16,11 +16,11 @@ class ApplicationController < ActionController::Base
     @current_user ||= OpenStruct.new(session[:userinfo])
   end
 
+  def user_roles
+    session[:userinfo]&.dig('https://myapp.com/123456789012/roles/roles')
+  end
+
   def user_is_admin?
-    return false unless session[:userinfo]
-    
-    # Get roles from the same path used in your Auth0Controller
-    user_roles = session[:userinfo]['https://myapp.com/123456789012/roles/roles']
     user_roles&.include?('Admin')
   end
 
