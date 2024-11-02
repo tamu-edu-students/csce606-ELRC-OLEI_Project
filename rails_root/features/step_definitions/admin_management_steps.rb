@@ -7,7 +7,7 @@ Given('I am on the homepage') do
 end
 
 Given('I have logged in as a {string}') do |role|
-  # Create a user with the specified role (principal, teacher, superintendent)
+  # Create a user with the specified role (principal, supervisee, supervisor)
   @user = FactoryBot.create(:survey_profile, role:)
   allow_any_instance_of(ApplicationController).to receive(:current_user_id).and_return(@user.user_id)
 end

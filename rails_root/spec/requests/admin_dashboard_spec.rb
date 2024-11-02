@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'Admin Dashboard Access', type: :request do
   # Create a user with the principal role (you can change this to other roles if needed)
-  let(:user) { FactoryBot.create(:survey_profile, role: 'Teacher') }
+  let(:user) { FactoryBot.create(:survey_profile, role: 'Supervisee') }
 
   before do
     allow_any_instance_of(SurveyResponsesController).to receive(:current_user_id).and_return(user.user_id)
