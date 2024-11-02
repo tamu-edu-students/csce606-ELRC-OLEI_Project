@@ -92,6 +92,7 @@ module SurveyResponsesHelper
       supervisee_answers = supervisee_avgs[idx]
 
       if answers.empty?
+        # puts "No answers for part #{idx + 1}"
         0
       else
         difference = 0
