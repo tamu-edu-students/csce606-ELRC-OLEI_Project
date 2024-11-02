@@ -13,6 +13,7 @@ https://elrc-6ad76821be30.herokuapp.com/
 
 <!--[![Test Coverage](https://api.codeclimate.com/v1/badges/62f4dd4fb092b4211973/test_coverage)](https://codeclimate.com/repos/65caed0abc0d27237b1794c9/test_coverage) 
 [![Maintainability](https://api.codeclimate.com/v1/badges/62f4dd4fb092b4211973/maintainability)](https://codeclimate.com/repos/65caed0abc0d27237b1794c9/maintainability) -->
+
 ![rubocop](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/barnden/c7b2d5e19079e12445b300407e383294/raw/badge.json)
 
 - [Deployed Application](https://elrc-app-dfcfc7cd862b.herokuapp.com/)
@@ -142,6 +143,13 @@ heroku run rails db:migrate
 heroku run rails db:seed
 ```
 
+[Github Integration with Heroku](https://devcenter.heroku.com/articles/github-integration)
+
+Set up Github Action (Different from Github Integration with Heroku)
+1. Set up ```secrets.RAILS_MASTER_KEY``` in your project Github Repository
+2. Set up ```secrets.GIST_SECRET``` in your project Github Repository by valid token with gist scope
+3. Set up ```secrets.GIST_ID``` (Create your own gist, and set up the gist ID in your project Github Repository)
+
 ## Contacts
 
 * Chih-Chuan Hsu <agenuinedream@tamu.edu>
@@ -152,5 +160,3 @@ heroku run rails db:seed
 * Sai Nithin
 * Vinayaka Hegde
 * [Legacy Code](https://github.com/tamu-edu-students/csce606-ELRC-Synergistic-Leadership-Theory)
-
-
