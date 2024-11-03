@@ -1,7 +1,7 @@
 # README
 
 * Ruby version: 3.3.0
-* System dependency
+* System dependencies
 * Configuration
 * Database creation
 * Database initialization
