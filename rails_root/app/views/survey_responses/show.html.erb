@@ -131,69 +131,39 @@
             <thead class="bg-aggie-maroon text-gray-100">
               <tr>
                 <th>Question</th>
-                <% if combined_view %>
-                  <% if !supervisor_response.nil? %>
-                    <th>supervisor</th>
-                  <%end %>
-                  <th>Your Response</th>
-                  <% if !supervisee_average.nil? %>
-                    <th>Supervisees</th>
-                  <%end%>
-                <% else %>
-                  <th>Response</th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                <% end %>
+                <th class="text-center">Response</th>
+                <th class="text-center">Supervisor's Response</th>
+                <th class="text-center">Supervisee's Response</th>
               </tr>
             </thead>
             <tbody>
               <% answers[section].each do |ans| %>
-                <% question_collapse_id = "question#{ans.question.id}" %>
-                <tr
-                  data-bs-toggle="collapse"
-                  data-bs-target="#<%= question_collapse_id %>"
-                  aria-expanded="false"
-                  aria-controls="<%= question_collapse_id %>"
-                >
+                <tr>
                   <td><%= ans.question.text %></td>
+                  <td class="text-center"><%= choices[ans.choice] %></td>
 
-                  <% if combined_view %>
-                    <% unless supervisor_response.nil? %>
-                      <% supervisor_choice = get_answer(supervisor_response, ans.question.id)%>
-                      <td class="<%= colors[(supervisor_choice - ans.choice).abs] %>"><%=  supervisor_choice.nil? ? "": choices[supervisor_choice] %></td>
-                    <% end %>
-                    <td><%= choices[ans.choice] %></td>
-                    <% unless supervisee_average.nil?%>
-                      <% if supervisee_average[ans.question_id] == nil %>
-                        <td></td>
-                      <% else %>
-                        <% supervisee_choice = (supervisee_average[ans.question.id] || 0).round() %>
-                        <td class="<%= colors[(supervisee_choice - ans.choice).abs] %>"><%= choices[supervisee_choice] %></td>
-                      <% end %>
-                    <% end %>
+                  <!-- Supervisor's Response -->
+                  <% if supervisor_response.nil? %>
+                    <td class="text-center">NE</td>
                   <% else %>
-                    <td><%= choices[ans.choice] %></td>
-                    <% 4.times do |i| %>
-                    <td>
-                      <input
-                        type="radio"
-                        disabled="disabled"
-                        <%= 'checked="checked"' if i == ans.choice %>
-                      >
-                    </td>
-                    <% end %>
+                    <% supervisor_choice = get_answer(supervisor_response, ans.question.id) %>
+                    <td class="text-center"><%= supervisor_choice.nil? ? "NE" : choices[supervisor_choice] %></td>
                   <% end %>
-                </tr>
-                <tr class="collapse" id="<%= question_collapse_id %>">
-                  <td colspan="6">
-                      <%= ans.question.explanation %>
-                  </td>
+
+                  <!-- Supervisee's Response -->
+                  <% if supervisee_average.nil? %>
+                    <td class="text-center">NE</td>
+                  <% else %>
+                    <% supervisee_choice = (supervisee_average[ans.question.id] || 0).round() %>
+                    <td class="text-center"><%= supervisee_choice.nil? ? "NE" : choices[supervisee_choice] %></td>
+                  <% end %>
                 </tr>
               <% end %>
             </tbody>
           </table>
+
+          <!-- Explanation Note -->
+          <p class="text-muted mt-2">*NE implies not evaluated yet</p>
         </div>
       <% end %>
     </div>
