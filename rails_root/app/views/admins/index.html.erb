@@ -13,6 +13,8 @@
             <th>First Name</th>
             <th>Last Name</th>
             <th>Role</th>
+            <th>Campus</th>
+            <th>District</th>
             <th>Created At</th>
             <th>View Survey</th> 
           </tr>
@@ -25,6 +27,8 @@
                 <td><%= response.profile.first_name %></td>
                 <td><%= response.profile.last_name %></td>
                 <td><%= response.profile.role %></td>
+                <td><%= response.profile.campus_name %></td>
+                <td><%= response.profile.district_name %></td>
                 <td><%= response.created_at.strftime('%Y-%m-%d %H:%M:%S') %></td>
                 <td>
                 <%= link_to 'View Survey', survey_response_path(response) %>
