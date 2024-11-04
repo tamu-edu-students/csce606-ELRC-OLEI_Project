@@ -6,9 +6,9 @@ class Auth0Controller < ApplicationController
     auth_info = request.env['omniauth.auth']
     user_roles = auth_info['extra']['raw_info']['https://myapp.com/123456789012/roles/roles']
     session[:userinfo] = auth_info['extra']['raw_info']
-    
+
     # Check if the user has an Admin role
-    if user_roles && user_roles.include?('Admin')
+    if user_roles&.include?('Admin')
       redirect_to admin_dashboard_path
     elsif SurveyProfile.find_by(user_id: session[:userinfo]['sub']).nil?
       redirect_to new_survey_profile_path
@@ -18,6 +18,7 @@ class Auth0Controller < ApplicationController
       redirect_to root_url
     end
   end
+
   def failure
     # Handles failed authentication -- Show a failure page (you can also handle with a redirect)
     @error_msg = request.params['message']

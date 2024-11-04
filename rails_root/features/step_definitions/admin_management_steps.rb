@@ -28,24 +28,22 @@ Then('I should be on the Admin Dashboard page') do
   expect(page).to have_content('Admin Dashboard')
 end
 
-
 # features/step_definitions/admin_navigation_steps.rb
-Given("I am logged in as an admin user") do
-  @user = create(:user, admin: true)  # Assuming you're using FactoryBot
+Given('I am logged in as an admin user') do
+  @user = create(:user, admin: true) # Assuming you're using FactoryBot
   # Add your authentication logic here, e.g.:
   login_as(@user)
 end
 
-Given("I am logged in as a regular user") do
+Given('I am logged in as a regular user') do
   @user = create(:user, admin: false)
   login_as(@user)
 end
 
-When("I visit the home page") do
+When('I visit the home page') do
   visit root_path
 end
 
-
-Given("I should not see the admin dashboard") do
-  expect(page).not_to have_content("admin")
+Given('I should not see the admin dashboard') do
+  expect(page).not_to have_content('admin')
 end

@@ -13,12 +13,13 @@ class ApplicationController < ActionController::Base
 
   def current_user
     return nil unless session[:userinfo]
-    @current_user ||= OpenStruct.new(session[:userinfo])
+
+    @current_user ||= Struct.new(session[:userinfo])
   end
 
   def user_is_admin?
     return false unless session[:userinfo]
-    
+
     # Get roles from the same path used in your Auth0Controller
     user_roles = session[:userinfo]['https://myapp.com/123456789012/roles/roles']
     user_roles&.include?('Admin')
@@ -27,11 +28,11 @@ class ApplicationController < ActionController::Base
   def authenticate_user!
     redirect_to '/auth/auth0' unless current_user
   end
-  
+
   def require_admin!
-    unless user_is_admin?
-      flash[:error] = "You must be an administrator to access this section"
-      redirect_to root_path
-    end
+    return if user_is_admin?
+
+    flash[:error] = 'You must be an administrator to access this section'
+    redirect_to root_path
   end
 end
