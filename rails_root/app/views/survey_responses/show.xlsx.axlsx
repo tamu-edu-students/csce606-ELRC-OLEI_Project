@@ -1,0 +1,15 @@
+wb = xlsx_package.workbook
+
+wb.add_worksheet(name: "Survey Response #{@survey_response.id}") do |sheet|
+  # Add headers
+  sheet.add_row ["Question", "Answer", "Section"]
+
+  # Add data
+  @survey_response.answers.includes(:question).each do |answer|
+    sheet.add_row [
+      answer.question.text,
+      ["Strongly Disagree", "Disagree", "Agree", "Strongly Agree"][answer.choice],
+      @sections[answer.question.section][:title]
+    ]
+  end
+end
