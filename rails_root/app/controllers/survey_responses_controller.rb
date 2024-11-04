@@ -24,9 +24,16 @@ class SurveyResponsesController < ApplicationController
   # GET /survey_responses/1 or /survey_responses/1.json
   def show
     return return_to_root 'You are not logged in.' if current_user_id.nil?
-    return return_to_root 'You cannot view this result.' if current_user_id != @survey_response.profile.user_id
+    return return_to_root 'You cannot view this result.' if current_user_id != @survey_response.profile.user_id && !user_is_admin?
 
     flash.keep(:warning)
+
+    respond_to do |format|
+      format.html
+      format.xlsx do
+        response.headers['Content-Disposition'] = "attachment; filename=survey_response_#{@survey_response.id}.xlsx"
+      end
+    end
   end
 
   def current_user_id

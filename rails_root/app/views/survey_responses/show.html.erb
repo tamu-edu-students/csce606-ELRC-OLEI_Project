@@ -196,6 +196,10 @@
           id: "invitation-button",
           class: "btn btn-outline-success"
         %>
+        <%= link_to "Download Response (Excel)", 
+            survey_response_path(@survey_response, 
+            format: :xlsx), class: "btn btn-outline-primary"
+        %>
         <%= button_to "Delete Response",
             @survey_response,
             method: :delete,

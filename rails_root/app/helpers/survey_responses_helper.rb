@@ -95,7 +95,7 @@ module SurveyResponsesHelper
         0
       else
         difference = 0
-        nonempty_answers = answers.select { |ans| !ans.choice.nil? }
+        nonempty_answers = answers.reject { |ans| ans.choice.nil? }
 
         nonempty_answers.each do |x|
           supervisee_choice = supervisee_answers[x.question_id]
@@ -125,10 +125,10 @@ module SurveyResponsesHelper
         0
       else
         difference = 0
-        nonempty_answers = answers.select { |ans| !ans.choice.nil? }
+        nonempty_answers = answers.reject { |ans| ans.choice.nil? }
         nonempty_answers.each do |x|
           other_choice = other_answers.detect { |y| x.question_id == y.question_id }
-          difference += (x.choice - other_choice.choice).abs unless (other_choice.nil?)
+          difference += (x.choice - other_choice.choice).abs unless other_choice.nil?
         end
 
         length = nonempty_answers.length - other_answers.select { |ans| ans.choice.nil? }.length
