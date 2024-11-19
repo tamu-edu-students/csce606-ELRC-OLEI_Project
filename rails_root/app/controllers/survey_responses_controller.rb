@@ -175,6 +175,133 @@ class SurveyResponsesController < ApplicationController
 
     # render based on role stored in session
 
+    # 1
+    if @survey_profile.role == 'Department Head'
+
+      @sections = [
+        {
+          title: 'Part 1: Leadership Behavior - Management',
+          prompt: 'To what extent do you agree the following behaviors reflect your personal leadership behaviors?'
+        },
+        {
+          title: 'Part 1: Leadership Behavior - Interpersonal',
+          prompt: 'To what extent do you agree the following behaviors reflect your personal leadership behaviors?'
+        },
+        {
+          title: 'Part 2. External Forces',
+          prompt: 'To what extent do you believe your board or immediate superior agrees to the importance of the following?'
+        },
+        {
+          title: 'Part 3. Organizational Structure',
+          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
+        },
+        {
+          title: 'Part 4. Values, Attitudes, and Beliefs',
+          prompt: 'To what extent do you agree the following characteristics apply to the principal?'
+        },
+        {
+          title: 'Part 4. Values, Attitudes, and Beliefs',
+          prompt: 'To what extent do you agree the following apply to your external community
+          (board, management, citizens)?'
+        }
+      ]
+    end
+
+    #2
+    if @survey_profile.role == 'Dean'
+
+      @sections = [
+        {
+          title: 'Part 1: Leadership Behavior - Management',
+          prompt: "To what extent do you agree the following behaviors reflect your principal's leadership behaviors?"
+        },
+        {
+          title: 'Part 1: Leadership Behavior - Interpersonal',
+          prompt: "To what extent do you agree the following behaviors reflect your principal's leadership behaviors?"
+        },
+        {
+          title: 'Part 2. External Forces',
+          prompt: 'To what extent do you believe your principal agrees to the importance of the following?'
+        },
+        {
+          title: 'Part 3. Organizational Structure',
+          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
+        },
+        {
+          title: 'Part 4. Values, Attitudes, and Beliefs',
+          prompt: 'To what extent do you agree the following characteristics apply to the principal?'
+        },
+        {
+          title: 'Part 4. Values, Attitudes, and Beliefs',
+          prompt: 'To what extent do you agree the following apply to your external community
+          (board, management, citizens)?'
+        }
+      ]
+    end
+
+    #3
+    if @survey_profile.role == 'Provost'
+
+      @sections = [
+        {
+          title: 'Part 1: Leadership Behavior - Management',
+          prompt: "To what extent do you agree the following behaviors reflect your principal's leadership behaviors?"
+        },
+        {
+          title: 'Part 1: Leadership Behavior - Interpersonal',
+          prompt: "To what extent do you agree the following behaviors reflect your principal's leadership behaviors?"
+        },
+        {
+          title: 'Part 2. External Forces',
+          prompt: 'To what extent do you believe your principal agrees to the importance of the following?'
+        },
+        {
+          title: 'Part 3. Organizational Structure',
+          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
+        },
+        {
+          title: 'Part 4. Values, Attitudes, and Beliefs',
+          prompt: 'To what extent do you agree the following characteristics apply to the principal?'
+        },
+        {
+          title: 'Part 4. Values, Attitudes, and Beliefs',
+          prompt: 'To what extent do you agree the following apply to your external community
+          (board, management, citizens)?'
+        }
+      ]
+    end
+#4 P
+    if @survey_profile.role == 'President'
+
+      @sections = [
+        {
+          title: 'Part 1: Leadership Behavior - Management',
+          prompt: "To what extent do you agree the following behaviors reflect your principal's leadership behaviors?"
+        },
+        {
+          title: 'Part 1: Leadership Behavior - Interpersonal',
+          prompt: "To what extent do you agree the following behaviors reflect your principal's leadership behaviors?"
+        },
+        {
+          title: 'Part 2. External Forces',
+          prompt: 'To what extent do you believe your principal agrees to the importance of the following?'
+        },
+        {
+          title: 'Part 3. Organizational Structure',
+          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
+        },
+        {
+          title: 'Part 4. Values, Attitudes, and Beliefs',
+          prompt: 'To what extent do you agree the following characteristics apply to the principal?'
+        },
+        {
+          title: 'Part 4. Values, Attitudes, and Beliefs',
+          prompt: 'To what extent do you agree the following apply to your external community
+          (board, management, citizens)?'
+        }
+      ]
+    end
+    #5
     if @survey_profile.role == 'Principal'
 
       @sections = [
