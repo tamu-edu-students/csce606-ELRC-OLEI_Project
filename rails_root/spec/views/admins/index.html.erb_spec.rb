@@ -6,16 +6,14 @@ RSpec.describe 'admins/index.html.erb', type: :view do
   let(:user_info) { { 'name' => 'John Doe' } }
   let(:survey_response) do
     double('SurveyResponse',
-      id: 1,
-      profile: double('Profile',
-        first_name: 'Jane',
-        last_name: 'Smith',
-        role: 'Teacher',
-        campus_name: 'High School',
-        district_name: 'District A'
-      ),
-      created_at: Time.new(2024, 11, 15, 14, 30, 0)
-    )
+           id: 1,
+           profile: double('Profile',
+                           first_name: 'Jane',
+                           last_name: 'Smith',
+                           role: 'Teacher',
+                           campus_name: 'High School',
+                           district_name: 'District A'),
+           created_at: Time.new(2024, 11, 15, 14, 30, 0))
   end
 
   context 'when user is logged in' do
