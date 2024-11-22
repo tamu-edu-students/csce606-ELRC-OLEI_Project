@@ -15,6 +15,9 @@ Feature: Survey profile roles dropdown
       | Principal       |
       | Superintendent  |
       | Teacher_Leader  |
+      | Supervisor      |
+      | Supervisee      |
+
 
   Scenario: Select and save a role
     When I select "Dean" from the "Role" dropdown
