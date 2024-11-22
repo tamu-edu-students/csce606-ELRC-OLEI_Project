@@ -34,8 +34,6 @@ When('I click Save button') do
   find(:button, name: 'commit', value: 'Save').click
 end
 
-When('I click Submit button') do
-end
 Then('I should see Next button') do
   next_button = find(:button, name: 'commit', value: 'Next', disabled: :all)
   expect(next_button).to be_present
