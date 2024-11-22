@@ -226,11 +226,11 @@ RSpec.describe SurveyResponsesHelper, type: :helper do
       expect(helper.get_part_difference(survey_response, other_response)).to eq([0, 0, 0, 0])
     end
 
-    # it 'calculates the average difference when both responses have choices' do
-    #   survey_answers
-    #   other_response = helper.find_supervisor(survey_response)
-    #   expect(helper.get_part_difference(survey_response, other_response)).to eq([0, 0, 0, 0])
-    # end
+    it 'calculates the average difference when both responses have choices' do
+      survey_answers
+      other_response = helper.find_supervisor(survey_response)
+      expect(helper.get_part_difference(survey_response, other_response)).to eq([0, 0, 0, 0])
+    end
 
     it 'ignores other answers with nil choices' do
       survey_answers
