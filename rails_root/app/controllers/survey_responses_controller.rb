@@ -187,198 +187,6 @@ class SurveyResponsesController < ApplicationController
 
     # render based on role stored in session
 
-    # 1
-    if @survey_profile.role == 'Department Head'
-
-      @sections = [
-        {
-          title: 'Part 1: Leadership Behavior - Management',
-          prompt: 'To what extent do you agree the following behaviors reflect your personal leadership behaviors?'
-        },
-        {
-          title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: 'To what extent do you agree the following behaviors reflect your personal leadership behaviors?'
-        },
-        {
-          title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe your board or immediate superior agrees to the importance of the following?'
-        },
-        {
-          title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to the yourself?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
-        }
-      ]
-    end
-
-    #2
-    if @survey_profile.role == 'Dean'
-
-      @sections = [
-        {
-          title: 'Part 1: Leadership Behavior - Management',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe your Leader agrees to the importance of the following?'
-        },
-        {
-          title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to the Leader?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
-        }
-      ]
-    end
-
-    #3
-    if @survey_profile.role == 'Provost'
-
-      @sections = [
-        {
-          title: 'Part 1: Leadership Behavior - Management',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe your Leader agrees to the importance of the following?'
-        },
-        {
-          title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to the Leader?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
-        }
-      ]
-    end
-#4 
-    if @survey_profile.role == 'President'
-
-      @sections = [
-        {
-          title: 'Part 1: Leadership Behavior - Management',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe your Leader agrees to the importance of the following?'
-        },
-        {
-          title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to the Leader?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
-        }
-      ]
-    end
-    #5
-    if @survey_profile.role == 'Superintendent'
-
-      @sections = [
-        {
-          title: 'Part 1: Leadership Behavior - Management',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe your Leader agrees to the importance of the following?'
-        },
-        {
-          title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to the Leader?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
-        }
-      ]
-    end
-    
-
-     #6
-    if @survey_profile.role == 'Teacher_Leader'
-
-      @sections = [
-        {
-          title: 'Part 1: Leadership Behavior - Management',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe your Leader agrees to the importance of the following?'
-        },
-        {
-          title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to the Leader?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
-        }
-      ]
-    end
-   
-    #7
     if @survey_profile.role == 'Principal'
 
       @sections = [
@@ -400,7 +208,7 @@ class SurveyResponsesController < ApplicationController
         },
         {
           title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to yourself?'
+          prompt: 'To what extent do you agree the following characteristics apply to the principal?'
         },
         {
           title: 'Part 4. Values, Attitudes, and Beliefs',
@@ -409,7 +217,7 @@ class SurveyResponsesController < ApplicationController
         }
       ]
     end
-    #8
+
     if @survey_profile.role == 'Supervisee'
 
       @sections = [
@@ -440,7 +248,6 @@ class SurveyResponsesController < ApplicationController
         }
       ]
     end
-    #9
     return unless @survey_profile.role == 'Supervisor'
 
     @sections = [
