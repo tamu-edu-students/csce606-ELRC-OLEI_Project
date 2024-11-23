@@ -62,6 +62,7 @@
       </div>
       <div class="col-lg-1 col-2 d-flex justify-content-center", id = "Save">
         <% if pagination.next_page? %>
+          <%= form.submit "Save", class: "btn btn-outline-success"%> 
         <% else %>
           <%= form.submit "Submit", class: "btn btn-outline-success" %>
         <% end %>
