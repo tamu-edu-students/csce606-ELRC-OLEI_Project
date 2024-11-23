@@ -9,16 +9,9 @@ class SurveyProfile < ApplicationRecord
     President: 3, 
     Principal: 4, 
     Superintendent: 5,
-    Teacher_leader:6,
+    Teacher_Leader:6,
     Supervisee: 7,
     Supervisor: 8
-
-    # Principal: 0,
-    # Supervisee: 1,
-    # Supervisor: 2,
-    # Team_Lead: 3, 
-    # Provost: 4, 
-    # President: 5
 
   }
   has_many :responses,
