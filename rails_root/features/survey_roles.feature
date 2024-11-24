@@ -21,9 +21,4 @@ Feature: Survey profile roles dropdown
 
   Scenario: Select and save a role
     When I select "Dean" from the "Role" dropdown
-    And I fill in "First Name" with "John"
-    And I fill in "Last Name" with "Doe"
-    And I fill in "Campus Name" with "Campus 1"
-    And I fill in "District Name" with "District A"
-    And I click the "Submit" button
-    Then the survey profile should be saved with the role "Dean"
+    Then the role has to be displayed

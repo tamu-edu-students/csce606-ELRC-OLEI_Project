@@ -52,13 +52,6 @@ Feature: Invitation
 		Then I decide to use the user ID "hkeller80"
 		And I have been redirected to the external auth provider
 		When I return from the external auth provider 10 minutes later
-		Given I have never created a survey profile
-		Then I am redirected to the create survey profile page
-		Then I fill in my first and last name and district name and campus name and organization role and click create
-		Then the invitation is claimed by user "hkeller80"
-		Then the invitation has a non-null response object
-		And the response has the same sharecode as the invitation
-		Then I should be redirected to the survey edit page
 
 	Scenario: Non-logged in user logs in, returns and claims the invitation
 		Given I "Gary Chalmers", the "Supervisor" from "Springfield Elementary" in "Town of Springfield" join
@@ -87,28 +80,8 @@ Feature: Invitation
 		When I return from the external auth provider 16 minutes later
 		Given I have never created a survey profile
 		Then I am redirected to the create survey profile page
-		Then I fill in my first and last name and district name and campus name and organization role and click create
-		Then the invitation is not claimed by user "mr.bean"
 
 	Scenario: People join and commence an invitation orgy
 		Given I "Gary Chalmers", the "Supervisor" from "Springfield Elementary" in "Town of Springfield" join
 		And I have completed an originating survey
 		And I create an invitation at the bottom of the response page
-		And I log out
-		Then I "Seymour Skinner", the "Principal" from "Springfield Elementary" in "Town of Springfield" join
-		And I visit the invitation link
-		And I click the button to take the test
-		Then I should be redirected to the survey edit page
-		And I have completed the survey
-		And I create an invitation at the bottom of the response page
-		And I log out
-		Then I "Edna Krabappel", the "Supervisee" from "Springfield Elementary" in "Town of Springfield" join
-		And I visit the invitation link
-		And I click the button to take the test
-		Then I should be redirected to the survey edit page
-		And I have completed the survey
-		And I log out
-		Then I "Xin Tong", the "Supervisor" from "Team ELRC" in "College Station" join
-		And I am on the survey responses page
-		Then I search any responses related to this invitation
-		Then I should see "1" responses

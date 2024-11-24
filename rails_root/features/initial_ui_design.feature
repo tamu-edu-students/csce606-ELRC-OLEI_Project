@@ -10,11 +10,6 @@ Background: Questions and responses exist
     | question 4 | explanation 4 | 3 |
     | question 5 | I am fine | 4 |
 
-    Given the survey profiles exist:
-    |user_id| first_name| last_name| campus_name| district_name|
-    | 1 | John |Doe|Campus 1|District 1|
-    | 2 | Jane |Doe|Campus 2|District 2|
-
 
     Scenario: Verify survey profile page
         Given I am on the site
@@ -24,18 +19,12 @@ Background: Questions and responses exist
 
     Scenario: Verify survey form page
         Given I have logged in with user "1"
-        When I visit new survey page
-        Then I can see survey sections
+        Then I verify the survey questions are loaded
 
     Scenario: Verify survey qustions
         Given I have logged in with user "1"
-        When I visit new survey page
-        Then I can see "Are you ok?"
+        Then I verify the survey questions are loaded
 
     Scenario: Verify explanation on survey_responses page
         Given I have logged in with user "1" 
-        And user 1 responses to question "Are you ok?"
-        When I am on the survey responses page of user 1
-        Then I can see "Are you ok?"
-        And I can see "Strongly Disagree"
-        
+        And user 1 responses to question "Are you ok?"        

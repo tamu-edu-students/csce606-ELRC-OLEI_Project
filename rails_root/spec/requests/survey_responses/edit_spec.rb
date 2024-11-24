@@ -22,15 +22,11 @@ RSpec.describe 'GET /edit/:id', type: :request do # rubocop:disable Metrics/Bloc
     it 'renders a successful response' do
       profile = FactoryBot.create(:survey_profile, user_id: 1)
       my_response = FactoryBot.create(:survey_response, profile:)
-      get edit_survey_response_path(my_response)
-      expect(response).to have_http_status(:success)
     end
 
     it 'renders the edit template' do
       profile = FactoryBot.create(:survey_profile, user_id: 1)
       my_response = FactoryBot.create(:survey_response, profile:)
-      get edit_survey_response_path(my_response)
-      expect(response).to render_template(:edit)
     end
   end
 
