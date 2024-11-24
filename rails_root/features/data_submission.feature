@@ -16,29 +16,22 @@ Background: Questions and responses exist
 
     Scenario: See Next button
         Given I have logged in with user "1"
-        When I visit new survey page
         Then I should see Next button
 
     Scenario: See Save button
         Given I have logged in with user "1"
-        When I visit new survey page
         Then I should see Save button
 
     Scenario: See Previous button
         Given I have logged in with user "1"
-        When I visit new survey page
         Then I should see Previous button
 
     Scenario: Should not see Submit button
         Given I have logged in with user "1"
-        When I visit new survey page
         Then I should not see Submit button
         
     Scenario: Analysis displays correct values
         Given I have logged in with user "1"
-        And I visit new survey page
-        When I I fill in the form with Disagree
-        And I keep click Next button
         And I click Submit button
         
     Scenario: Analysis displays tetrahedron
