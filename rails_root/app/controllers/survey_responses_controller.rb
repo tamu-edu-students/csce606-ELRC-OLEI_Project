@@ -186,8 +186,7 @@ class SurveyResponsesController < ApplicationController
     @survey_profile = SurveyProfile.find_by(user_id: current_user_id)
 
     # render based on role stored in session
-
-    # 1
+    # Role-1
     if @survey_profile.role == 'Department Head'
 
       @sections = [
@@ -345,7 +344,6 @@ class SurveyResponsesController < ApplicationController
       ]
     end
     
-
      #6
     if @survey_profile.role == 'Teacher_Leader'
 
