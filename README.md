@@ -48,7 +48,7 @@ https://elrc-6ad76821be30.herokuapp.com/
 Clone repository
 
 ```
-git clone git@github.com:tamu-edu-students/csce606-ELRC-OLEI_Project.git
+git clone https://github.com/tamu-edu-students/csce606-ELRC-OLEI_Project.git
 ```
 
 Install all dependencies
