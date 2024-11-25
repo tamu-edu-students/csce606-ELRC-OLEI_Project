@@ -111,14 +111,14 @@ bundle exec cucumber
 Create Heroku application
 
 ```
-heroku create [appname]
+heroku create <app_name>
 ```
 
 Add buildpacks
 
 ```
-heroku buildpacks:add https://github.com/timanovsky/subdir-heroku-buildpack.git
-heroku buildpacks:add heroku/ruby
+heroku buildpacks:add https://github.com/timanovsky/subdir-heroku-buildpack.git --app <app-name>
+heroku buildpacks:add heroku/ruby --app <app-name>
 ```
 
 Add config vars
