@@ -13,7 +13,7 @@ class AdminsController < ApplicationController
       format.html do
         redirect_to root_url, notice: message
       end
-      format.json { render json: { error: message }, status: }
+      format.json { render json: { error: message }, status:}
     end
   end
 end
