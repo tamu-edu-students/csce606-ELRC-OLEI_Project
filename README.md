@@ -124,8 +124,8 @@ heroku buildpacks:add heroku/ruby --app <app-name>
 Add config vars
 
 ```
-heroku config:set PROJECT_PATH=rails_root
-heroku config:set RAILS_MASTER_KEY=<master key here>
+heroku config:set PROJECT_PATH=rails_root --app <app-name>
+heroku config:set RAILS_MASTER_KEY=<master key here> --app <app-name>
 ```
 
 Install [Heroku Postgres](https://elements.heroku.com/addons/heroku-postgresql) and attach to application
