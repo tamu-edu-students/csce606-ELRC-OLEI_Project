@@ -3,17 +3,16 @@
 # This is the model for the SurveyProfile
 class SurveyProfile < ApplicationRecord
   enum role: {
-    Department_Head: 0,
-    Dean: 1,
-    Provost: 2,
-    President: 3, 
-    Principal: 4, 
-    Superintendent: 5,
-    Teacher_Leader:6,
-    Supervisee: 7,
-    Supervisor: 8
-
-  }
+  "Department Head": 0,
+  "Dean": 1,
+  "Provost": 2,
+  "President": 3, 
+  "Principal": 4, 
+  "Superintendent": 5,
+  "Teacher Leader": 6,
+  "Supervisee": 7,
+  "Supervisor": 8
+}
   has_many :responses,
            foreign_key: :profile_id,
            class_name: 'SurveyResponse',
