@@ -1,14 +1,8 @@
 <!DOCTYPE html>
-
-<% flash.each do |type, message| %>
-  <div class="alert alert-<%= type %>">
-    <%= message %>
-  </div>
-<% end %>
 <html>
   <head>
     <title>ELRC | Synergistic Leadership Theory</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -42,15 +36,41 @@
   </head>
   <body>
     <div class="container">
+      <% flash.each do |type, message| %>
+        <div class="alert alert-<%= type %>">
+          <%= message %>
+        </div>
+      <% end %>
+
       <%= render "layouts/header" %>
 
       <%= yield %>
       
       <%= render "layouts/footer" %>
-
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-      crossorigin="anonymous"></script>
     </div>
+
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+    <!-- Turbo and Bootstrap Reinitialization Script -->
+    <script>
+      // Function to reinitialize Bootstrap collapsibles
+      function reinitializeBootstrapComponents() {
+        var collapseElements = document.querySelectorAll('[data-bs-toggle="collapse"]');
+        collapseElements.forEach(function (element) {
+          var target = document.querySelector(element.getAttribute('data-bs-target'));
+          if (target) {
+            new bootstrap.Collapse(target, { toggle: false });
+          }
+        });
+        console.log("Bootstrap components reinitialized.");
+      }
+
+      // Reinitialize on full load or Turbo navigation
+      document.addEventListener("turbo:load", reinitializeBootstrapComponents);
+      document.addEventListener("DOMContentLoaded", reinitializeBootstrapComponents);
+    </script>
   </body>
 </html>
