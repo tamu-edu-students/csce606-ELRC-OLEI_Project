@@ -108,6 +108,7 @@
       <br>
 
       <% sections.each do |section| %>
+        <% answers[section] ||= [] %>
         <% answers[section] = answers[section].sort_by { |ans| ans.question_id } %>
         <% collapse_id = "section#{section}" %>
 
