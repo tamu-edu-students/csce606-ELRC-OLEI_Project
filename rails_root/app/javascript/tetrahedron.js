@@ -12,6 +12,10 @@ export function loadModel(containerID, tetrahedronType) {
     if (!(typeof tetrahedronType === 'string' || tetrahedronType instanceof String)) return;
 
     const container = document.getElementById(containerID);
+    // check not repetitive loading
+    if (container.children.length > 0) {
+        return;
+    }
 
     let pose1, pose2, pose3, pose4, rest;
     let pose1Copy, pose2Copy, pose3Copy, pose4Copy, restCopy;
