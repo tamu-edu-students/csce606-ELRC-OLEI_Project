@@ -158,8 +158,13 @@ class SurveyResponsesController < ApplicationController
     @survey_response.destroy!
 
     respond_to do |format|
-      format.html { redirect_to survey_responses_url, notice: 'Survey response was successfully destroyed.' }
-      format.json { head :no_content }
+      if user_is_admin?
+        format.html { redirect_to admin_dashboard_path, notice: 'Survey profile was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html { redirect_to root_path, notice: 'Survey profile was successfully destroyed.' }
+        format.json { head :no_content }
+      end
     end
   end
 
