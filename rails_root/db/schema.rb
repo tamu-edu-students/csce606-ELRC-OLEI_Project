@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_13_233358) do
+ActiveRecord::Schema[7.1].define(version: 2025_01_30_150226) do
   create_table "invitations", force: :cascade do |t|
     t.integer "parent_response_id", null: false
     t.boolean "visited"
@@ -43,6 +43,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_13_233358) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "role", default: 0
+    t.integer "supervisor_id"
     t.index ["user_id"], name: "index_survey_profiles_on_user_id", unique: true
   end
 
