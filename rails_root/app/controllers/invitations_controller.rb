@@ -15,10 +15,10 @@ class InvitationsController < ApplicationController
   def show
     @invitation = Invitation.find_by(token: params[:token])
 
-    if @invitation.nil? || @invitation.visited
+    if @invitation.nil?
       redirect_to not_found_invitations_path
     else
-      @invitation.update(visited: true)
+      @invitation.update(visited: true) unless @invitation.visited
 
       if session[:userinfo].present?
         user_id = session[:userinfo]['sub']

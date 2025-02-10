@@ -155,18 +155,33 @@ class SurveyResponsesController < ApplicationController
 
   # DELETE /survey_responses/1 or /survey_responses/1.json
   def destroy
-    @survey_response.destroy!
-
+    ActiveRecord::Base.transaction do
+      # Delete associated survey answers
+      SurveyAnswer.where(response_id: @survey_response.id).destroy_all
+  
+      # Delete associated invitations
+      Invitation.where(response_id: @survey_response.id).destroy_all
+  
+      # Finally, destroy the survey response
+      @survey_response.destroy!
+    end
+  
     respond_to do |format|
       if user_is_admin?
-        format.html { redirect_to admin_dashboard_path, notice: 'Survey profile was successfully destroyed.' }
-        format.json { head :no_content }
+        format.html { redirect_to admin_dashboard_path, notice: 'Survey response was successfully destroyed.' }
       else
-        format.html { redirect_to root_path, notice: 'Survey profile was successfully destroyed.' }
-        format.json { head :no_content }
+        format.html { redirect_to root_path, notice: 'Survey response was successfully destroyed.' }
       end
+      format.json { head :no_content }
+    end
+  rescue ActiveRecord::RecordNotDestroyed => e
+    respond_to do |format|
+      format.html { redirect_back fallback_location: root_path, alert: "Failed to destroy survey response: #{e.message}" }
+      format.json { render json: { error: e.message }, status: :unprocessable_entity }
     end
   end
+  
+  
 
   private
 
