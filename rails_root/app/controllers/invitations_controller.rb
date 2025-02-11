@@ -27,7 +27,7 @@ class InvitationsController < ApplicationController
         claim_invitation(user_profile) if user_profile
       end
 
-      session[:invitation] = { from: @invitation.id, expiration: 15.minute.from_now }
+      session[:invitation] = { from: @invitation.id }
     end
   end
 
