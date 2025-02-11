@@ -188,9 +188,14 @@ class SurveyResponsesController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_survey_data
     logger.info '========== set_survey_data triggered =========='
-    @survey_response = SurveyResponse.find params[:id]
-    @questions = @survey_response.questions
-  end
+    @survey_response = SurveyResponse.find_by(id: params[:id])
+    if @survey_response.nil?
+      flash[:alert] = 'Survey not found'
+      redirect_to root_path
+    else
+      @questions = @survey_response.questions
+    end
+  end  
 
   # rubocop:disable Metrics/MethodLength
   def set_survey_sections
