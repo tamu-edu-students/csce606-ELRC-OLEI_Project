@@ -1,6 +1,6 @@
 <% supervisor_response = find_supervisor(@survey_response)%>
 <% supervisee_average = average_of_supervisees(@survey_response)%>
-<% combined_view = ["Department Head", "Dean", "Provost", "President", "Principal", "Superintendent", "Teacher_Leader"].include?(@survey_response.profile.role) && !(supervisee_average.nil? && supervisor_response.nil?) %>
+<% combined_view = ["Department Head", "Dean", "Provost", "President", "Principal", "Superintendent", "Teacher Leader"].include?(@survey_response.profile.role) && !(supervisee_average.nil? && supervisor_response.nil?) %>
 <% colors = ["table-slight-red", "table-mild-red", "table-medium-red", "table-strong-red"] %>
 <% difference_text = ["Synergized", "Slightly Misaligned", "Misaligned", "Severely Misaligned"] %>
 <% value_text = ["(1) Leadership", "(2) External Forces", "(3) Organizational Structure", "(4) Values, Attributes, and Beliefs"] %>

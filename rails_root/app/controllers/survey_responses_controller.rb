@@ -370,7 +370,7 @@ class SurveyResponsesController < ApplicationController
     end
     
      #6
-    if @survey_profile.role == 'Teacher_Leader'
+    if @survey_profile.role == 'Teacher Leader'
 
       @sections = [
         {

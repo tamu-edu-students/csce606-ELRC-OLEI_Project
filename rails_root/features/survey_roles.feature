@@ -14,7 +14,7 @@ Feature: Survey profile roles dropdown
       | President       |
       | Principal       |
       | Superintendent  |
-      | Teacher_Leader  |
+      | Teacher Leader  |
       | Supervisor      |
       | Supervisee      |
 
