@@ -26,48 +26,110 @@ module SurveyResponsesHelper
       [3],
       [4, 5]
     ]
-
-    supervisee_responses = find_supervisees(response)
-
+  
+    supervisee_profiles = find_supervisees(response)
+  
     parts.map do |sections|
       answers = {}
-      supervisee_responses.each do |res|
-        res.answers.select { |ans| sections.include? ans.question.section }.each do |ans|
+      supervisee_profiles.each do |profile|
+        survey_response = profile.responses.find_by(share_code: response.share_code)
+        next unless survey_response
+  
+        survey_response.answers.includes(:question).select { |ans| sections.include? ans.question.section }.each do |ans|
           answers[ans.question_id] = (answers[ans.question_id] || 0) + ans.choice
         end
       end
-
-      answers.transform_values! { |v| v.to_f / supervisee_responses.length }
+  
+      answers.transform_values! { |v| v.to_f / supervisee_profiles.count }
     end
   end
-
+  
   def average_of_supervisees(response)
-    # returns the average score of the supervisees
-    supervisee_responses = find_supervisees(response)
-    total_scores = Array.new(97, nil)
-
-    return nil if supervisee_responses.empty?
-
-    n = supervisee_responses.length
-    supervisee_responses.each do |res|
-      res.answers.each do |ans|
-        total_scores[ans.question_id] = (total_scores[ans.question_id] || 0) + (ans.choice.to_f / n)
+    supervisee_profiles = find_supervisees(response)
+    total_scores = Array.new(97, 0)
+    count_scores = Array.new(97, 0)
+  
+    return nil if supervisee_profiles.empty?
+  
+    supervisee_profiles.each do |profile|
+      survey_response = profile.responses.find_by(share_code: response.share_code)
+      next unless survey_response
+  
+      survey_response.answers.each do |ans|
+        total_scores[ans.question_id] += ans.choice.to_f
+        count_scores[ans.question_id] += 1
       end
     end
-
-    total_scores
-  end
+  
+    # Calculate average scores
+    average_scores = total_scores.map.with_index do |total, index|
+      count = count_scores[index]
+      count > 0 ? (total / count).round(2) : nil
+    end
+  
+    average_scores
+  end  
+  
 
   def find_supervisor(response)
-    SurveyResponse.joins(:profile).where(share_code: response.share_code, profile: { role: 'Supervisor' }).first!
-  rescue StandardError
-    nil
+    child_profile = response.profile
+  
+    supervisor_role = case child_profile.role
+    when "Department Head"
+      "Dean"
+    when "Dean"
+      "Provost"
+    when "Provost"
+      "President"
+    when "Principal"
+      "President"
+    when "Superintendent"
+      "Principal"
+    when "Teacher Leader"
+      ["Department Head", "Superintendent"]
+    else
+      nil
+    end
+  
+    return nil if supervisor_role.nil?
+  
+    # Instead of using parent_response, we'll search for a supervisor based on the share_code
+    supervisor_profiles = SurveyProfile.where(role: supervisor_role)
+    supervisor_response = SurveyResponse.joins(:profile)
+                                        .where(share_code: response.share_code, profile: supervisor_profiles)
+                                        .first
+  
+    supervisor_response
   end
-
+  
+  
   def find_supervisees(response)
-    SurveyResponse.joins(:profile).where(share_code: response.share_code, profile: { role: 'Supervisee' })
-  rescue StandardError
-    nil
+    parent_profile = response.profile
+  
+    # Collect all profiles associated with survey responses linked to the invitation
+    child_profiles = response.invitations.flat_map do |invitation|
+      invitation.responses.map(&:profile)
+    end.compact
+  
+    supervisee_roles = case parent_profile.role
+    when "Department Head"
+      ["Teacher Leader"]
+    when "Dean"
+      ["Department Head"]
+    when "Provost"
+      ["Dean"]
+    when "President"
+      ["Provost", "Principal"]
+    when "Principal"
+      ["Superintendent"]
+    when "Superintendent"
+      ["Teacher Leader"]
+    else
+      []
+    end
+  
+    # Filter profiles by supervisee roles
+    child_profiles.select { |profile| supervisee_roles.include?(profile.role) }
   end
 
   def get_answer(response, question_id)

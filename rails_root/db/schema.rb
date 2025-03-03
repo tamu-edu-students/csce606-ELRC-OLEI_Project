@@ -10,7 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_01_30_150226) do
+ActiveRecord::Schema[7.1].define(version: 2025_02_12_195415) do
+  create_table "invitation_claims", force: :cascade do |t|
+    t.integer "invitation_id", null: false
+    t.integer "survey_profile_id", null: false
+    t.integer "survey_response_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invitation_id", "survey_profile_id"], name: "index_invitation_claims_on_invitation_id_and_survey_profile_id", unique: true
+    t.index ["invitation_id"], name: "index_invitation_claims_on_invitation_id"
+    t.index ["survey_profile_id"], name: "index_invitation_claims_on_survey_profile_id"
+    t.index ["survey_response_id"], name: "index_invitation_claims_on_survey_response_id"
+  end
+
   create_table "invitations", force: :cascade do |t|
     t.integer "parent_response_id", null: false
     t.boolean "visited"
@@ -63,6 +75,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_01_30_150226) do
     t.index ["profile_id"], name: "index_survey_responses_on_profile_id"
   end
 
+  add_foreign_key "invitation_claims", "invitations"
+  add_foreign_key "invitation_claims", "survey_profiles"
+  add_foreign_key "invitation_claims", "survey_responses"
   add_foreign_key "invitations", "survey_profiles", column: "claimed_by_id"
   add_foreign_key "invitations", "survey_responses", column: "parent_response_id"
   add_foreign_key "invitations", "survey_responses", column: "response_id"

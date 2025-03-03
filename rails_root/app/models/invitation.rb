@@ -3,9 +3,10 @@
 # User can create this invitation entity in the response page,
 # once they finish their survey.
 class Invitation < ApplicationRecord
-  belongs_to :response, class_name: 'SurveyResponse', foreign_key: 'response_id', optional: true
-  belongs_to :claimed_by, class_name: 'SurveyProfile', foreign_key: 'claimed_by_id', optional: true
   belongs_to :parent_response, class_name: 'SurveyResponse', foreign_key: 'parent_response_id'
+  has_many :claims, class_name: 'InvitationClaim'
+  has_many :claimed_by, through: :claims, source: :survey_profile
+  has_many :responses, through: :claims, source: :survey_response
 
   validates_uniqueness_of :token
 
@@ -17,3 +18,4 @@ class Invitation < ApplicationRecord
     self.token = SecureRandom.urlsafe_base64
   end
 end
+

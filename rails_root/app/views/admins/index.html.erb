@@ -30,7 +30,13 @@
                 <td><%= response.profile.role %></td>
                 <td><%= response.profile.campus_name %></td>
                 <td><%= response.profile.district_name %></td>
-                <td><%= response.profile.role == 'Principal' ? 'Self' : 'Principal' %></td>
+                <td>
+                  <% if response.invitation&.parent_response %>
+                    <%= response.invitation.parent_response.profile.role %>
+                  <% else %>
+                    Self
+                  <% end %>
+                </td>
                 <td><%= response.created_at.strftime('%Y-%m-%d %H:%M:%S') %></td>
                 <td>
                 <%= link_to 'View Survey', survey_response_path(response) %>

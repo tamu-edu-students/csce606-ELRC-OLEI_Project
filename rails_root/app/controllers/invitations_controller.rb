@@ -39,9 +39,17 @@ class InvitationsController < ApplicationController
 
   def claim_invitation(user_profile)
     sharecode_from_invitation = @invitation.parent_response.share_code
-
-    @new_response_to_fill = SurveyResponse.create(profile: user_profile, share_code: sharecode_from_invitation)
-
-    @invitation.update(claimed_by_id: user_profile.id, response_id: @new_response_to_fill.id)
+  
+    @new_response_to_fill = SurveyResponse.create!(
+      profile: user_profile,
+      share_code: sharecode_from_invitation
+    )
+  
+    # Store claims separately instead of overwriting
+    InvitationClaim.create!(
+      invitation: @invitation,
+      survey_profile: user_profile,
+      survey_response: @new_response_to_fill
+    )
   end
-end
+end  

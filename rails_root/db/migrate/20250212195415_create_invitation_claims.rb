@@ -7,8 +7,5 @@ class CreateInvitationClaims < ActiveRecord::Migration[7.1]
 
       t.timestamps
     end
-    
-    add_index :invitation_claims, [:invitation_id, :survey_profile_id], unique: true
   end
 end
-
