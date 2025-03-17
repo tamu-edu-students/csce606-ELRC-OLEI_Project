@@ -9,11 +9,24 @@ wb.add_worksheet(name: "Survey Response #{@survey_response.id}") do |sheet|
   # Define choices array for translating choice values into text
   choices = ['Strongly Disagree', 'Disagree', 'Agree', 'Strongly Agree']
 
+  # Ensure supervisor response is retrieved
+  supervisor_response = find_supervisor(@survey_response)
+  
+  # Ensure supervisee responses are averaged
+  supervisee_average = average_of_supervisees(@survey_response)
+
+  # Debugging: Log supervisor and supervisee responses
+  Rails.logger.info "Supervisor Response: #{supervisor_response.inspect}"
+  Rails.logger.info "Supervisee Averages: #{supervisee_average.inspect}"
+
   # Loop through each answer in the survey response and add rows to Excel
   @survey_response.answers.includes(:question).each do |answer|
-    # Get supervisor and supervisee responses (assuming you have methods for this)
-    supervisor_choice = get_answer(@supervisor_response, answer.question.id) if @supervisor_response.present?
-    supervisee_choice = get_supervisee_average(answer.question.id) if @supervisee_average.present?
+    # Get supervisor and supervisee responses (ensuring supervisor_response exists)
+    supervisor_choice = supervisor_response ? get_answer(supervisor_response, answer.question.id) : nil
+    supervisee_choice = supervisee_average ? (supervisee_average[answer.question.id] || nil) : nil
+
+    # Debugging: Log the values before adding them to the sheet
+    Rails.logger.info "Q: #{answer.question.text} | User: #{choices[answer.choice]} | Supervisor: #{supervisor_choice} | Supervisee: #{supervisee_choice}"
 
     # Add row for each question with responses from user, supervisor, and supervisees
     sheet.add_row [

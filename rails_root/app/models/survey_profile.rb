@@ -2,13 +2,16 @@
 
 class SurveyProfile < ApplicationRecord
   enum role: {
-    "Department Head": 0,
-    "Dean": 1,
-    "Provost": 2,
-    "President": 3, 
-    "Principal": 4, 
-    "Superintendent": 5,
-    "Teacher Leader": 6,
+    "Board Member": 0,
+    "Superintendent": 1,
+    "Assistant/Associate Superintendent": 2,
+    "Principal": 3,
+    "Assistant Principal": 4,
+    "Counselor": 5,
+    "Teacher Leader (Specialist)": 6,
+    "Teacher": 7,
+    "Other Instructional Staff": 8,
+    "Non-Instructional Staff": 9
   }
 
   belongs_to :supervisor, class_name: 'SurveyProfile', optional: true
@@ -26,26 +29,12 @@ class SurveyProfile < ApplicationRecord
   private
 
   def set_role_relationships
-    case role
-    when "Department Head"
-      self.supervisor = SurveyProfile.find_by(role: "Dean")
-      self.supervisees << SurveyProfile.where(role: "Teacher Leader")
-    when "Dean"
-      self.supervisor = SurveyProfile.find_by(role: "Provost")
-      self.supervisees << SurveyProfile.where(role: "Department Head")
-    when "Provost"
-      self.supervisor = SurveyProfile.find_by(role: "President")
-      self.supervisees << SurveyProfile.where(role: "Dean")
-    when "President"
-      self.supervisees << SurveyProfile.where(role: ["Provost", "Principal"])
-    when "Principal"
-      self.supervisor = SurveyProfile.find_by(role: "President")
-      self.supervisees << SurveyProfile.where(role: "Superintendent")
-    when "Superintendent"
-      self.supervisor = SurveyProfile.find_by(role: "Principal")
-      self.supervisees << SurveyProfile.where(role: "Teacher Leader")
-    when "Teacher Leader"
-      self.supervisor = SurveyProfile.find_by(role: ["Department Head", "Superintendent"].sample)
-    end
+    role_index = SurveyProfile.roles[role]
+    higher_roles = SurveyProfile.roles.select { |_, index| index < role_index }.keys
+    lower_roles = SurveyProfile.roles.select { |_, index| index > role_index }.keys
+
+    self.supervisor = SurveyProfile.where(role: higher_roles).first
+    self.supervisees << SurveyProfile.where(role: lower_roles)
   end
 end
+

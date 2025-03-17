@@ -13,7 +13,7 @@ module SurveyResponsesHelper
     survey_response.created_at.strftime('%B %d, %Y')
   end
 
-  #  method to find the user of a survey response
+  # method to find the user of a survey response
   def user_of_response(survey_response)
     # returns profile_id of the survey response
     survey_response.profile_id
@@ -69,71 +69,37 @@ module SurveyResponsesHelper
   
     average_scores
   end  
-  
 
+  # Finds all supervisors (anyone above in the hierarchy)
   def find_supervisor(response)
     child_profile = response.profile
-  
-    supervisor_role = case child_profile.role
-    when "Department Head"
-      "Dean"
-    when "Dean"
-      "Provost"
-    when "Provost"
-      "President"
-    when "Principal"
-      "President"
-    when "Superintendent"
-      "Principal"
-    when "Teacher Leader"
-      ["Department Head", "Superintendent"]
-    else
-      nil
-    end
-  
-    return nil if supervisor_role.nil?
-  
-    # Instead of using parent_response, we'll search for a supervisor based on the share_code
-    supervisor_profiles = SurveyProfile.where(role: supervisor_role)
+
+    supervisor_roles = SurveyProfile.roles.keys.select { |role| SurveyProfile.roles[role] < SurveyProfile.roles[child_profile.role] }
+
+    return nil if supervisor_roles.empty?
+
+    supervisor_profiles = SurveyProfile.where(role: supervisor_roles)
     supervisor_response = SurveyResponse.joins(:profile)
                                         .where(share_code: response.share_code, profile: supervisor_profiles)
                                         .first
-  
     supervisor_response
   end
-  
-  
+
+  # Finds all supervisees (anyone below in the hierarchy)
   def find_supervisees(response)
     parent_profile = response.profile
-  
-    # Collect all profiles associated with survey responses linked to the invitation
-    child_profiles = response.invitations.flat_map do |invitation|
+
+    supervisee_roles = SurveyProfile.roles.keys.select { |role| SurveyProfile.roles[role] > SurveyProfile.roles[parent_profile.role] }
+
+    return [] if supervisee_roles.empty?
+
+    response.invitations.flat_map do |invitation|
       invitation.responses.map(&:profile)
-    end.compact
-  
-    supervisee_roles = case parent_profile.role
-    when "Department Head"
-      ["Teacher Leader"]
-    when "Dean"
-      ["Department Head"]
-    when "Provost"
-      ["Dean"]
-    when "President"
-      ["Provost", "Principal"]
-    when "Principal"
-      ["Superintendent"]
-    when "Superintendent"
-      ["Teacher Leader"]
-    else
-      []
-    end
-  
-    # Filter profiles by supervisee roles
-    child_profiles.select { |profile| supervisee_roles.include?(profile.role) }
+    end.compact.select { |profile| supervisee_roles.include?(profile.role) }
   end
 
   def get_answer(response, question_id)
-    response.answers.where(question_id:).first!.choice
+    response.answers.where(question_id: question_id).first!.choice
   rescue StandardError
     nil
   end
