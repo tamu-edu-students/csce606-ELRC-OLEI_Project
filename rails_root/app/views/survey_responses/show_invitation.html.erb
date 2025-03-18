@@ -32,12 +32,6 @@
         <%= link_to "Edit Response",
             edit_survey_response_path(@survey_response),
             class: "btn btn-outline-primary" %>
-
-        <%= button_tag "Create Invitation",
-          data: { parent_survey_response_id: @survey_response.id },
-          id: "invitation-button",
-          class: "btn btn-outline-success"
-        %>
       <% end %>
 
       <%= link_to "Download Response (Excel)", 

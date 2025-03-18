@@ -22,12 +22,14 @@
 
     <% unless supervisor_response.nil? %>
     <% supervisor_alignment = get_part_difference(@survey_response, supervisor_response) %>
+    <% Rails.logger.info "Supervisor Alignment: #{supervisor_alignment.inspect}" %>
     <% end %>
 
     <% unless supervisee_average.nil? %>
     <% supervisee_alignment = get_supervisee_part_difference(@survey_response) %>
+    <% Rails.logger.info "Supervisee Alignment: #{supervisee_alignment.inspect}" %>
     <% end %>
-    
+
     <%# Synergy Table %>
     <div class="row d-flex justify-content-center">
       <div class="col-8">
@@ -170,7 +172,7 @@
     <div id="invitation-link-container" class="mt-4" style="display: none;">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">Invitation Link Created</h5>
+          <h5 class="card-title">Invitation Link Created. Please keep it saved.</h5>
           <p class="card-text">
             <span id="invitation-link"></span>
           </p>
@@ -283,10 +285,12 @@
   import { loadModel } from  "tetrahedron"
 
   <% unless supervisor_response.nil? %>
+  console.log("Loading Supervisor Tetrahedron: <%= supervisor_alignment.join('_') %>");
   loadModel("supervisor-tetrahedron", "<%= supervisor_alignment.join('_') %>")
   <% end %>
 
   <% unless supervisee_average.nil? %>
+  console.log("Loading Supervisee Tetrahedron: <%= supervisee_alignment.join('_') %>");
   loadModel("supervisee-tetrahedron", "<%= supervisee_alignment.join('_') %>")
   <% end %>
 </script>

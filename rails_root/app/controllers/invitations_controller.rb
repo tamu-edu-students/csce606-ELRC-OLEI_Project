@@ -7,7 +7,7 @@ class InvitationsController < ApplicationController
     @invitation = Invitation.create!(parent_response: @parent_survey_response, last_sent: Time.now, visited: false)
 
     render json: {
-      message: "Invitation link created: #{invitation_url(@invitation.token)}",
+      message: "Invitation link created. Please keep it saved.: #{invitation_url(@invitation.token)}",
       invitation_url: invitation_url(@invitation.token)
     }
   end
