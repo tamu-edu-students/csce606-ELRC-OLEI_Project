@@ -37,12 +37,12 @@ class SurveyResponsesController < ApplicationController
       if invited_survey
         format.html { render 'survey_responses/show_invitation' }
         format.xlsx do
-          response.headers['Content-Disposition'] = "attachment; filename=evaluation_survey_#{@survey_response.id}.xlsx"
+          response.headers['Content-Disposition'] = "attachment; filename=OLEI_Survey_#{@survey_response.id}.xlsx"
         end
       else
         format.html { render 'survey_responses/show' }
         format.xlsx do
-          response.headers['Content-Disposition'] = "attachment; filename=survey_response_#{@survey_response.id}.xlsx"
+          response.headers['Content-Disposition'] = "attachment; filename=Self_Assessment_#{@survey_response.id}.xlsx"
         end
       end
     end
@@ -267,27 +267,27 @@ class SurveyResponsesController < ApplicationController
       @sections = [
         {
           title: 'Part 1: Leadership Behavior - Management',
-          prompt: 'To what extent do you agree that the following behaviors reflect the leadership approach of the surveyed individual?'
+          prompt: 'To what extent do you agree that the following behaviors reflect the leadership approach of the leader who requested this survey?'
         },
         {
           title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: 'To what extent do you agree that the following behaviors reflect the interpersonal leadership style of the surveyed individual?'
+          prompt: 'To what extent do you agree that the following behaviors reflect the interpersonal leadership style of the leader who requested this survey?'
         },
         {
           title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe these external factors influence the surveyed individual’s leadership?'
+          prompt: 'To what extent do you believe these external factors influence the leadership of the leader who requested this survey?'
         },
         {
           title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree that the following characteristics describe the organization’s structure from the perspective of the surveyed individual?'
+          prompt: 'To what extent do you agree that the following characteristics describe the organization’s structure from the perspective of the leader who requested this survey?'
         },
         {
           title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree that the following characteristics represent the perspectives of the surveyed individual?'
+          prompt: 'To what extent do you agree that the following characteristics represent the perspectives of the leader who requested this survey?'
         },
         {
           title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree that the following characteristics apply to the external community of the surveyed individual (e.g., leadership, management, stakeholders)?'
+          prompt: 'To what extent do you agree that the following characteristics apply to the external community of the leader who requested this survey (e.g., leadership, management, stakeholders)?'
         }
       ]
     end
