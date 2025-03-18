@@ -208,9 +208,12 @@ class SurveyResponsesController < ApplicationController
     return return_to_root('Your profile could not be found. Please complete your profile.') unless SurveyProfile.exists?(user_id: current_user_id)
   
     @survey_profile = SurveyProfile.find_by(user_id: current_user_id)
-  
+    
+    # Check if the user started from an invitation (stored in session)
+    started_from_invitation = session[:invitation].present?
+    
     # If the user is taking their own survey (new or continuing)
-    if @survey_response.nil? || (@survey_response.present? && @survey_response.profile_id == @survey_profile.id)
+    unless started_from_invitation
       # Self-assessment survey
       @sections = [
         {
