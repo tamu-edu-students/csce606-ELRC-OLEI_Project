@@ -13,7 +13,7 @@ module SurveyResponsesHelper
     survey_response.created_at.strftime('%B %d, %Y')
   end
 
-  #  method to find the user of a survey response
+  # method to find the user of a survey response
   def user_of_response(survey_response)
     # returns profile_id of the survey response
     survey_response.profile_id
@@ -26,55 +26,105 @@ module SurveyResponsesHelper
       [3],
       [4, 5]
     ]
-
-    supervisee_responses = find_supervisees(response)
-
+  
+    supervisee_profiles = find_supervisees(response)
+  
     parts.map do |sections|
       answers = {}
-      supervisee_responses.each do |res|
-        res.answers.select { |ans| sections.include? ans.question.section }.each do |ans|
+      supervisee_profiles.each do |profile|
+        survey_response = profile.responses.find_by(share_code: response.share_code)
+        next unless survey_response
+  
+        survey_response.answers.includes(:question).select { |ans| sections.include? ans.question.section }.each do |ans|
           answers[ans.question_id] = (answers[ans.question_id] || 0) + ans.choice
         end
       end
-
-      answers.transform_values! { |v| v.to_f / supervisee_responses.length }
+  
+      answers.transform_values! { |v| v.to_f / supervisee_profiles.count }
     end
   end
-
+  
   def average_of_supervisees(response)
-    # returns the average score of the supervisees
-    supervisee_responses = find_supervisees(response)
-    total_scores = Array.new(97, nil)
-
-    return nil if supervisee_responses.empty?
-
-    n = supervisee_responses.length
-    supervisee_responses.each do |res|
-      res.answers.each do |ans|
-        total_scores[ans.question_id] = (total_scores[ans.question_id] || 0) + (ans.choice.to_f / n)
+    supervisee_profiles = find_supervisees(response)
+    total_scores = Array.new(97, 0)
+    count_scores = Array.new(97, 0)
+  
+    return nil if supervisee_profiles.empty?
+  
+    supervisee_profiles.each do |profile|
+      survey_response = profile.responses.find_by(share_code: response.share_code)
+      next unless survey_response
+  
+      survey_response.answers.each do |ans|
+        total_scores[ans.question_id] += ans.choice.to_f
+        count_scores[ans.question_id] += 1
       end
     end
+  
+    # Calculate average scores
+    average_scores = total_scores.map.with_index do |total, index|
+      count = count_scores[index]
+      count > 0 ? (total / count).round(2) : nil
+    end
+  
+    average_scores
+  end 
 
-    total_scores
-  end
+  def average_of_supervisors(response)
+    child_profile = response.profile
+  
+    # Find all supervisor roles above the current profile
+    supervisor_roles = SurveyProfile.roles.keys.select { |role| SurveyProfile.roles[role] < SurveyProfile.roles[child_profile.role] }
+    return nil if supervisor_roles.empty?
+  
+    # Find all supervisors' profiles
+    supervisor_profiles = SurveyProfile.where(role: supervisor_roles)
+  
+    # Find all survey responses from supervisors using the same share_code
+    supervisor_responses = SurveyResponse.joins(:profile)
+                                         .where(share_code: response.share_code, profile: supervisor_profiles)
+  
+    return nil if supervisor_responses.empty? # If no supervisors have responded
+  
+    # Calculate the average choice for each question
+    total_scores = Hash.new(0)
+    count_scores = Hash.new(0)
+  
+    supervisor_responses.each do |supervisor_response|
+      supervisor_response.answers.each do |ans|
+        total_scores[ans.question_id] += ans.choice.to_f
+        count_scores[ans.question_id] += 1
+      end
+    end
+  
+    # Compute averages
+    average_scores = total_scores.transform_values { |total| (total / count_scores[total_scores.key(total)]).round(2) }
+  
+    average_scores
+  end  
 
-  def find_supervisor(response)
-    SurveyResponse.joins(:profile).where(share_code: response.share_code, profile: { role: 'Supervisor' }).first!
-  rescue StandardError
-    nil
-  end
-
+  # Finds all supervisees (anyone below in the hierarchy)
   def find_supervisees(response)
-    SurveyResponse.joins(:profile).where(share_code: response.share_code, profile: { role: 'Supervisee' })
-  rescue StandardError
-    nil
+    parent_profile = response.profile
+
+    supervisee_roles = SurveyProfile.roles.keys.select { |role| SurveyProfile.roles[role] > SurveyProfile.roles[parent_profile.role] }
+
+    return [] if supervisee_roles.empty?
+
+    response.invitations.flat_map do |invitation|
+      invitation.responses.map(&:profile)
+    end.compact.select { |profile| supervisee_roles.include?(profile.role) }
   end
 
   def get_answer(response, question_id)
-    response.answers.where(question_id:).first!.choice
+    if response.is_a?(Hash)
+      return response[question_id] || 'NE' # Fetch from the hash, or return "NE" if missing
+    end
+  
+    response.answers.where(question_id: question_id).first&.choice || 'NE'
   rescue StandardError
-    nil
-  end
+    'NE'
+  end  
 
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def get_supervisee_part_difference(response)
@@ -116,25 +166,29 @@ module SurveyResponsesHelper
       [3],
       [4, 5]
     ]
-
+  
     parts.map do |sections|
       answers = response.answers.select { |ans| sections.include? ans.question.section }
-      other_answers = other.answers.select { |ans| sections.include? ans.question.section }
-
+      
+      # Handle both individual response objects and averaged hashes
+      other_answers = other.is_a?(Hash) ? other : other.answers.select { |ans| sections.include? ans.question.section }
+  
       if answers.empty?
         0
       else
         difference = 0
         nonempty_answers = answers.reject { |ans| ans.choice.nil? }
+  
         nonempty_answers.each do |x|
-          other_choice = other_answers.detect { |y| x.question_id == y.question_id }
-          difference += (x.choice - other_choice.choice).abs unless other_choice.nil?
+          # Get the choice value from `other_answers`
+          other_choice = other.is_a?(Hash) ? other[x.question_id] : other_answers.detect { |y| x.question_id == y.question_id }&.choice
+          difference += (x.choice - other_choice).abs unless other_choice.nil?
         end
-
-        length = nonempty_answers.length - other_answers.select { |ans| ans.choice.nil? }.length
-        (difference.to_f / length).round
+  
+        length = nonempty_answers.length - other_answers.select { |ans| ans.nil? }.length
+        (length > 0) ? (difference.to_f / length).round : 0
       end
     end
-  end
+  end  
   # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 end

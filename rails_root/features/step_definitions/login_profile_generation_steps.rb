@@ -76,7 +76,7 @@ Then('I fill in my first and last name, district name, campus name, and organiza
   fill_in 'Campus name', with: 'Joe Campus'
   fill_in 'District name', with: 'Joe District'
 
-  expect(page).to have_select('Role', options: ["Department Head", "Dean", "Provost", "President", "Principal", "Superintendent", "Teacher_Leader", "Supervisor", "Supervisee"])
+  expect(page).to have_select('Role', options: ["Board Member", "Superintendent", "Assistant/Associate Superintendent", "Principal", "Assistant Principal", "Counselor", "Teacher Leader (Specialist)", "Teacher", "Other Instructional Staff", "Non-Instructional Staff"])
   select 'Principal', from: 'Role'
   
   click_button 'Create Survey profile'

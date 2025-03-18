@@ -7,7 +7,7 @@ class InvitationsController < ApplicationController
     @invitation = Invitation.create!(parent_response: @parent_survey_response, last_sent: Time.now, visited: false)
 
     render json: {
-      message: "Invitation link created: #{invitation_url(@invitation.token)}",
+      message: "Invitation link created. Please save this link for you to share with others who will complete their perceptions of your Leadership.: #{invitation_url(@invitation.token)}",
       invitation_url: invitation_url(@invitation.token)
     }
   end
@@ -15,10 +15,10 @@ class InvitationsController < ApplicationController
   def show
     @invitation = Invitation.find_by(token: params[:token])
 
-    if @invitation.nil? || @invitation.visited
+    if @invitation.nil?
       redirect_to not_found_invitations_path
     else
-      @invitation.update(visited: true)
+      @invitation.update(visited: true) unless @invitation.visited
 
       if session[:userinfo].present?
         user_id = session[:userinfo]['sub']
@@ -27,7 +27,7 @@ class InvitationsController < ApplicationController
         claim_invitation(user_profile) if user_profile
       end
 
-      session[:invitation] = { from: @invitation.id, expiration: 15.minute.from_now }
+      session[:invitation] = { from: @invitation.id }
     end
   end
 
@@ -39,9 +39,23 @@ class InvitationsController < ApplicationController
 
   def claim_invitation(user_profile)
     sharecode_from_invitation = @invitation.parent_response.share_code
-
-    @new_response_to_fill = SurveyResponse.create(profile: user_profile, share_code: sharecode_from_invitation)
-
-    @invitation.update(claimed_by_id: user_profile.id, response_id: @new_response_to_fill.id)
-  end
-end
+  
+    @new_response_to_fill = SurveyResponse.create!(
+      profile: user_profile,
+      share_code: sharecode_from_invitation
+    )
+  
+    # ✅ Check if the user has already claimed this invitation
+    existing_claim = InvitationClaim.find_by(invitation: @invitation, survey_profile: user_profile)
+  
+    unless existing_claim
+      InvitationClaim.create!(
+        invitation: @invitation,
+        survey_profile: user_profile,
+        survey_response: @new_response_to_fill
+      )
+    else
+      Rails.logger.info "User #{user_profile.id} has already claimed invitation #{@invitation.id}"
+    end
+  end    
+end  

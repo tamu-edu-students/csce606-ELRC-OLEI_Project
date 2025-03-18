@@ -24,19 +24,30 @@ class SurveyResponsesController < ApplicationController
   # GET /survey_responses/1 or /survey_responses/1.json
   def show
     return return_to_root 'You are not logged in.' if current_user_id.nil?
-
-    return return_to_root 'You cannot view this result.' if !user_is_admin? && (current_user_id != @survey_response.profile.user_id)
-
+  
+    return return_to_root 'You cannot view this result.' if !user_is_admin? && (current_user_id != @survey_response&.profile&.user_id)
+  
+    set_survey_sections # Ensure sections are correctly set
+  
+    invited_survey = InvitationClaim.exists?(survey_response_id: @survey_response.id)
+  
     flash.keep(:warning)
-
+  
     respond_to do |format|
-      format.html
-      format.xlsx do
-        response.headers['Content-Disposition'] = "attachment; filename=survey_response_#{@survey_response.id}.xlsx"
+      if invited_survey
+        format.html { render 'survey_responses/show_invitation' }
+        format.xlsx do
+          response.headers['Content-Disposition'] = "attachment; filename=OLEI_Survey_#{@survey_response.id}.xlsx"
+        end
+      else
+        format.html { render 'survey_responses/show' }
+        format.xlsx do
+          response.headers['Content-Disposition'] = "attachment; filename=Self_Assessment_#{@survey_response.id}.xlsx"
+        end
       end
     end
   end
-
+  
   def current_user_id
     session[:userinfo]['sub'] if session.dig(:userinfo, 'sub').present? && !session[:userinfo]['sub'].nil?
   end
@@ -155,322 +166,133 @@ class SurveyResponsesController < ApplicationController
 
   # DELETE /survey_responses/1 or /survey_responses/1.json
   def destroy
-    @survey_response.destroy!
-
+    ActiveRecord::Base.transaction do
+      Rails.logger.info "Starting deletion of SurveyResponse ID: #{@survey_response.id}"
+  
+      # 1. Find the invitation claims associated with this response
+      invitation_claims_deleted = InvitationClaim.where(survey_response_id: @survey_response.id).destroy_all
+      Rails.logger.info "Deleted #{invitation_claims_deleted.count} invitation claims for SurveyResponse ID: #{@survey_response.id}"
+  
+      # 2. Check if this survey response was created via an invitation
+      associated_invitation = Invitation.find_by(response_id: @survey_response.id)
+  
+      # If this was an invitee's response, remove only their reference, NOT the invitation itself
+      associated_invitation.update(response_id: nil) if associated_invitation
+  
+      # 3. Delete all answers associated with this response
+      survey_answers_deleted = SurveyAnswer.where(response_id: @survey_response.id).destroy_all
+      Rails.logger.info "Deleted #{survey_answers_deleted.count} survey answers for SurveyResponse ID: #{@survey_response.id}"
+  
+      # 4. Finally, delete the survey response itself
+      if @survey_response.destroy!
+        Rails.logger.info "Successfully deleted SurveyResponse ID: #{@survey_response.id}"
+      else
+        Rails.logger.warn "Failed to delete SurveyResponse ID: #{@survey_response.id}"
+      end
+    end
+  
     respond_to do |format|
-      format.html { redirect_to survey_responses_url, notice: 'Survey response was successfully destroyed.' }
+      if user_is_admin?
+        format.html { redirect_to admin_dashboard_path, notice: 'Survey response was successfully destroyed.' }
+      else
+        format.html { redirect_to root_path, notice: 'Survey response was successfully destroyed.' }
+      end
       format.json { head :no_content }
     end
-  end
+  rescue ActiveRecord::RecordNotDestroyed => e
+    Rails.logger.error "Failed to delete SurveyResponse: #{e.message}"
+    respond_to do |format|
+      format.html { redirect_back fallback_location: root_path, alert: "Failed to destroy survey response: #{e.message}" }
+      format.json { render json: { error: e.message }, status: :unprocessable_entity }
+    end
+  end  
 
   private
 
   # Use callbacks to share common setup or constraints between actions.
   def set_survey_data
     logger.info '========== set_survey_data triggered =========='
-    @survey_response = SurveyResponse.find params[:id]
-    @questions = @survey_response.questions
-  end
+    @survey_response = SurveyResponse.find_by(id: params[:id])
+    if @survey_response.nil?
+      flash[:alert] = 'Survey not found'
+      redirect_to root_path
+    else
+      @questions = @survey_response.questions
+    end
+  end  
 
   # rubocop:disable Metrics/MethodLength
   def set_survey_sections
     logger.info '========== set_survey_sections triggered =========='
-    # puts(session.to_json)
-
-    # return if current_user_id.nil?
-    return respond_with_error 'invalid form' if invalid_form?
-
-    return return_to_root 'You are not logged in.' if current_user_id.nil?
-    return return_to_root 'Your profile could not be found. Please complete your profile.' unless SurveyProfile.exists?(user_id: current_user_id)
-
+  
+    return return_to_root('You are not logged in.') if current_user_id.nil?
+    return return_to_root('Your profile could not be found. Please complete your profile.') unless SurveyProfile.exists?(user_id: current_user_id)
+  
     @survey_profile = SurveyProfile.find_by(user_id: current_user_id)
-
-    # render based on role stored in session
-    # Role-1
-    if @survey_profile.role == 'Department Head'
-
-      @sections = [
-        {
-          title: 'Part 1: Leadership Behavior - Management',
-          prompt: 'To what extent do you agree the following behaviors reflect your personal leadership behaviors?'
-        },
-        {
-          title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: 'To what extent do you agree the following behaviors reflect your personal leadership behaviors?'
-        },
-        {
-          title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe your board or immediate superior agrees to the importance of the following?'
-        },
-        {
-          title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to the yourself?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
-        }
-      ]
-    end
-
-    #2
-    if @survey_profile.role == 'Dean'
-
-      @sections = [
-        {
-          title: 'Part 1: Leadership Behavior - Management',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe your Leader agrees to the importance of the following?'
-        },
-        {
-          title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to the Leader?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
-        }
-      ]
-    end
-
-    #3
-    if @survey_profile.role == 'Provost'
-
-      @sections = [
-        {
-          title: 'Part 1: Leadership Behavior - Management',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe your Leader agrees to the importance of the following?'
-        },
-        {
-          title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to the Leader?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
-        }
-      ]
-    end
-#4 
-    if @survey_profile.role == 'President'
-
-      @sections = [
-        {
-          title: 'Part 1: Leadership Behavior - Management',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe your Leader agrees to the importance of the following?'
-        },
-        {
-          title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to the Leader?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
-        }
-      ]
-    end
-    #5
-    if @survey_profile.role == 'Superintendent'
-
-      @sections = [
-        {
-          title: 'Part 1: Leadership Behavior - Management',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
-        },
-        {
-          title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe your Leader agrees to the importance of the following?'
-        },
-        {
-          title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to the Leader?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
-        }
-      ]
-    end
     
-     #6
-    if @survey_profile.role == 'Teacher_Leader'
-
+    # Check if the user started from an invitation (stored in session)
+    started_from_invitation = session[:invitation].present?
+    
+    # If the user is taking their own survey (new or continuing)
+    unless started_from_invitation
+      # Self-assessment survey
       @sections = [
         {
           title: 'Part 1: Leadership Behavior - Management',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
+          prompt: 'To what extent do you agree that the following behaviors reflect your personal leadership approach?'
         },
         {
           title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: "To what extent do you agree the following behaviors reflect your Leader's leadership behaviors?"
+          prompt: 'To what extent do you agree that the following behaviors reflect your interpersonal leadership style?'
         },
         {
           title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe your Leader agrees to the importance of the following?'
+          prompt: 'To what extent do you believe these external factors influence your leadership?'
         },
         {
           title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
+          prompt: 'To what extent do you agree that the following characteristics describe your organization’s structure?'
         },
         {
           title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to the Leader?'
+          prompt: 'To what extent do you agree that the following characteristics represent your perspectives?'
         },
         {
           title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
+          prompt: 'To what extent do you agree that the following characteristics apply to your external community (e.g., leadership, management, stakeholders)?'
         }
       ]
-    end
-   
-    #7
-    if @survey_profile.role == 'Principal'
-
+    else
+      # Evaluation survey (Taken via invitation link)
       @sections = [
         {
           title: 'Part 1: Leadership Behavior - Management',
-          prompt: 'To what extent do you agree the following behaviors reflect your personal leadership behaviors?'
+          prompt: 'To what extent do you agree that the following behaviors reflect the leadership approach of the leader who requested this survey?'
         },
         {
           title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: 'To what extent do you agree the following behaviors reflect your personal leadership behaviors?'
+          prompt: 'To what extent do you agree that the following behaviors reflect the interpersonal leadership style of the leader who requested this survey?'
         },
         {
           title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe your board or immediate superior agrees to the importance of the following?'
+          prompt: 'To what extent do you believe these external factors influence the leadership of the leader who requested this survey?'
         },
         {
           title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
+          prompt: 'To what extent do you agree that the following characteristics describe the organization’s structure from the perspective of the leader who requested this survey?'
         },
         {
           title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to yourself?'
+          prompt: 'To what extent do you agree that the following characteristics represent the perspectives of the leader who requested this survey?'
         },
         {
           title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
+          prompt: 'To what extent do you agree that the following characteristics apply to the external community of the leader who requested this survey (e.g., leadership, management, stakeholders)?'
         }
       ]
     end
-    #8
-    if @survey_profile.role == 'Supervisee'
-
-      @sections = [
-        {
-          title: 'Part 1: Leadership Behavior - Management',
-          prompt: "To what extent do you agree the following behaviors reflect your principal's leadership behaviors?"
-        },
-        {
-          title: 'Part 1: Leadership Behavior - Interpersonal',
-          prompt: "To what extent do you agree the following behaviors reflect your principal's leadership behaviors?"
-        },
-        {
-          title: 'Part 2. External Forces',
-          prompt: 'To what extent do you believe your principal agrees to the importance of the following?'
-        },
-        {
-          title: 'Part 3. Organizational Structure',
-          prompt: 'To what extent do you agree the following characteristics apply to your organization?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following characteristics apply to the principal?'
-        },
-        {
-          title: 'Part 4. Values, Attitudes, and Beliefs',
-          prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
-        }
-      ]
-    end
-    #9
-    return unless @survey_profile.role == 'Supervisor'
-
-    @sections = [
-      {
-        title: 'Part 1: Leadership Behavior - Management',
-        prompt: "To what extent do you agree the following behaviors reflect your principal's leadership behaviors?"
-      },
-      {
-        title: 'Part 1: Leadership Behavior - Interpersonal',
-        prompt: "To what extent do you agree the following behaviors reflect your principal's leadership behaviors?"
-      },
-      {
-        title: 'Part 2. External Forces',
-        prompt: 'To what extent do you believe your principal agrees to the importance of the following?'
-      },
-      {
-        title: 'Part 3. Organizational Structure',
-        prompt: 'To what extent do you agree the following characteristics apply to your organization?'
-      },
-      {
-        title: 'Part 4. Values, Attitudes, and Beliefs',
-        prompt: 'To what extent do you agree the following characteristics apply to the principal?'
-      },
-      {
-        title: 'Part 4. Values, Attitudes, and Beliefs',
-        prompt: 'To what extent do you agree the following apply to your external community
-          (board, management, citizens)?'
-      }
-    ]
-  end
+  end   
   # rubocop:enable Metrics/MethodLength
-
   def invalid_form?
     return false if survey_response_params.nil?
 
@@ -506,4 +328,3 @@ class SurveyResponsesController < ApplicationController
     invitation ? invitation.token : 'N/A'
   end
 end
-# rubocop:enable Metrics/ClassLength

@@ -43,8 +43,9 @@ class Auth0Controller < ApplicationController
   def claim_invitation
     temporary_invitation_session_var = session[:invitation]
 
-    if temporary_invitation_session_var && temporary_invitation_session_var['expiration'] > Time.now
+    if temporary_invitation_session_var
       invitation = Invitation.find_by(id: temporary_invitation_session_var['from'])
+
       if invitation
         sharecode_from_invitation = invitation.parent_response.share_code
         survey_profile = SurveyProfile.find_by(user_id: session[:userinfo]['sub'])
@@ -55,7 +56,7 @@ class Auth0Controller < ApplicationController
       end
     end
 
-    session.delete(:invitation)
+    session.delete(:invitation) if temporary_invitation_session_var.nil?
     false
   end
 end

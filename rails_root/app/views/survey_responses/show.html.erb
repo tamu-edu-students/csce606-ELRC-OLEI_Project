@@ -1,6 +1,6 @@
-<% supervisor_response = find_supervisor(@survey_response)%>
+<% supervisor_average = average_of_supervisors(@survey_response)%>
 <% supervisee_average = average_of_supervisees(@survey_response)%>
-<% combined_view = ["Department Head", "Dean", "Provost", "President", "Principal", "Superintendent", "Teacher_Leader"].include?(@survey_response.profile.role) && !(supervisee_average.nil? && supervisor_response.nil?) %>
+<% combined_view = ["Board Member", "Superintendent", "Assistant/Associate Superintendent", "Principal", "Assistant Principal", "Counselor", "Teacher Leader (Specialist)", "Teacher", "Other Instructional Staff", "Non-Instructional Staff"].include?(@survey_response.profile.role) && !(supervisee_average.nil? && supervisor_average.nil?) %>
 <% colors = ["table-slight-red", "table-mild-red", "table-medium-red", "table-strong-red"] %>
 <% difference_text = ["Synergized", "Slightly Misaligned", "Misaligned", "Severely Misaligned"] %>
 <% value_text = ["(1) Leadership", "(2) External Forces", "(3) Organizational Structure", "(4) Values, Attributes, and Beliefs"] %>
@@ -20,14 +20,16 @@
       <div id="supervisee-tetrahedron" class="col-5 text-center">vs. Supervisee Review</div>
     </div>
 
-    <% unless supervisor_response.nil? %>
-    <% supervisor_alignment = get_part_difference(@survey_response, supervisor_response) %>
+    <% unless supervisor_average.nil? %>
+    <% supervisor_alignment = get_part_difference(@survey_response, supervisor_average) %>
+    <% Rails.logger.info "Supervisor Alignment: #{supervisor_alignment.inspect}" %>
     <% end %>
 
     <% unless supervisee_average.nil? %>
     <% supervisee_alignment = get_supervisee_part_difference(@survey_response) %>
+    <% Rails.logger.info "Supervisee Alignment: #{supervisee_alignment.inspect}" %>
     <% end %>
-    
+
     <%# Synergy Table %>
     <div class="row d-flex justify-content-center">
       <div class="col-8">
@@ -35,8 +37,8 @@
         <thead>
           <tr>
             <th>Key Factor</th>
-            <% unless supervisor_response.nil? %>
-            <th class="text-center">supervisor</th>
+            <% unless supervisor_average.nil? %>
+            <th class="text-center">Supervisor</th>
             <% end %>
 
             <% unless supervisee_average.nil? %>
@@ -54,7 +56,7 @@
                 </span>
                 <%= value %>
               </td>
-              <% unless supervisor_response.nil? %>
+              <% unless supervisor_average.nil? %>
               <% synergism = supervisor_alignment[idx] %> 
               <td class="<%= colors[synergism] %>">
                 <div class="<%= colors[synergism] %> text-center"><%= difference_text[synergism] %> </div>
@@ -75,11 +77,6 @@
     </div>
   <% else %> <%# No synergy view%>
     <h1 class="text-center">Synergistic Leadership Theory</h1>
-    <% if @survey_response.profile.role == 'Principal' %>
-      <div class="alert alert-info" role="alert">
-        For analysis of your school's synergism, create and send an invitation.
-      </div>
-    <% end %>
   <% end %>
 
   <%# Research Explanation %>
@@ -144,11 +141,11 @@
                   <td class="text-center"><%= choices[ans.choice] %></td>
 
                   <!-- Supervisor's Response -->
-                  <% if supervisor_response.nil? %>
+                  <% if supervisor_average.nil? %>
                     <td class="text-center">NE</td>
                   <% else %>
-                    <% supervisor_choice = get_answer(supervisor_response, ans.question.id) %>
-                    <td class="text-center"><%= supervisor_choice.nil? ? "NE" : choices[supervisor_choice] %></td>
+                    <% supervisor_choice = get_answer(supervisor_average, ans.question.id) %>
+                    <td class="text-center"><%= supervisor_choice == "NE" ? "NE" : choices[supervisor_choice] %></td>
                   <% end %>
 
                   <!-- Supervisee's Response -->
@@ -175,7 +172,7 @@
     <div id="invitation-link-container" class="mt-4" style="display: none;">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">Invitation Link Created</h5>
+          <h5 class="card-title">Invitation Link Created. Please save this link for you to share with others who will complete their perceptions of your Leadership.</h5>
           <p class="card-text">
             <span id="invitation-link"></span>
           </p>
@@ -185,18 +182,21 @@
       <hr>
     </div>
 
-    <%# Invitation Button %>
-    <div class="row d-flex justify-content-center">
-      <div class="col-8 btn-group" role="group">
-        <%= link_to "Edit Response",
-            edit_survey_response_path(@survey_response),
-            class: "btn btn-outline-primary"
-      	%>
+<%# Invitation Button %>
+<div class="row d-flex justify-content-center">
+  <div class="col-8 btn-group" role="group">
+    <% unless user_is_admin? %>
+      <%= link_to "Edit Response",
+          edit_survey_response_path(@survey_response),
+          class: "btn btn-outline-primary" %>
+    
+      
         <%= button_tag "Create Invitation",
           data: { parent_survey_response_id: @survey_response.id },
           id: "invitation-button",
           class: "btn btn-outline-success"
         %>
+    <% end %>
         <%= link_to "Download Response (Excel)", 
             survey_response_path(@survey_response, 
             format: :xlsx), class: "btn btn-outline-primary"
@@ -216,12 +216,16 @@
     <div class="row d-flex justify-content-center">
       <div class="col-6 text-center">
         <div class="row">
-          <div class="col-6">
-        <%= link_to "Back to survey responses", survey_responses_path, class: "btn btn-link" %>
+          <% unless !user_is_admin? %>
+          <div class="col-12">
+        <%= link_to "Back to Dashboard", admin_dashboard_path, class: "btn btn-link" %>
           </div>
-          <div class="col-6">
+          <% end %>
+          <% unless user_is_admin? %>
+          <div class="col-12">
         <%= link_to "Back to home", root_path, class: "btn btn-link" %>
           </div>
+          <% end %>
         </div>
       </div>
       <div>
@@ -280,11 +284,13 @@
 <script type="module">
   import { loadModel } from  "tetrahedron"
 
-  <% unless supervisor_response.nil? %>
+  <% unless supervisor_average.nil? %>
+  console.log("Loading Supervisor Tetrahedron: <%= supervisor_alignment.join('_') %>");
   loadModel("supervisor-tetrahedron", "<%= supervisor_alignment.join('_') %>")
   <% end %>
 
   <% unless supervisee_average.nil? %>
+  console.log("Loading Supervisee Tetrahedron: <%= supervisee_alignment.join('_') %>");
   loadModel("supervisee-tetrahedron", "<%= supervisee_alignment.join('_') %>")
   <% end %>
 </script>

@@ -6,7 +6,7 @@
     <hr>
     <h3>Survey Responses</h3>
     <div class="table-responsive">
-      <table class = "table">
+      <table class="table">
         <thead>
           <tr>
             <th>ID</th>
@@ -17,7 +17,7 @@
             <th>District</th>
             <th>Survey taken for</th>
             <th>Created At</th>
-            <th>View Survey</th> 
+            <th>View Survey</th>
           </tr>
         </thead>
         <% if @survey_responses.present? %>
@@ -30,10 +30,14 @@
                 <td><%= response.profile.role %></td>
                 <td><%= response.profile.campus_name %></td>
                 <td><%= response.profile.district_name %></td>
-                <td><%= response.profile.role == 'Principal' ? 'Self' : 'Principal' %></td>
+                <td>
+                  <% invitation_claim = InvitationClaim.find_by(survey_response_id: response.id) %>
+                  <% invited_by = invitation_claim&.invitation&.parent_response&.profile&.role %>
+                  <%= invited_by.present? ? invited_by : "Self" %>
+                </td>
                 <td><%= response.created_at.strftime('%Y-%m-%d %H:%M:%S') %></td>
                 <td>
-                <%= link_to 'View Survey', survey_response_path(response) %>
+                  <%= link_to 'View Survey', survey_response_path(response) %>
                 </td>
               </tr>
             <% end %>
