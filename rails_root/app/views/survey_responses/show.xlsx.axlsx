@@ -1,39 +1,52 @@
-# frozen_string_literal: true
-
 wb = xlsx_package.workbook
 
-wb.add_worksheet(name: "Survey Response #{@survey_response.id}") do |sheet|
-  # Add headers for columns
-  sheet.add_row ['Question', 'Response', "Supervisor's Response", "Supervisee's Response"]
+# Check if the survey was taken via an invitation (evaluation survey)
+invited_survey = InvitationClaim.exists?(survey_response_id: @survey_response.id)
 
+wb.add_worksheet(name: "Survey Response #{@survey_response.id}") do |sheet|
   # Define choices array for translating choice values into text
   choices = ['Strongly Disagree', 'Disagree', 'Agree', 'Strongly Agree']
 
-  # Ensure supervisor response is retrieved
-  supervisor_response = find_supervisor(@survey_response)
+  # Ensure supervisor response is retrieved (only for self-assessments)
+  supervisor_response = find_supervisor(@survey_response) unless invited_survey
   
-  # Ensure supervisee responses are averaged
-  supervisee_average = average_of_supervisees(@survey_response)
+  # Ensure supervisee responses are averaged (only for self-assessments)
+  supervisee_average = average_of_supervisees(@survey_response) unless invited_survey
 
   # Debugging: Log supervisor and supervisee responses
   Rails.logger.info "Supervisor Response: #{supervisor_response.inspect}"
   Rails.logger.info "Supervisee Averages: #{supervisee_average.inspect}"
+  Rails.logger.info "Survey Type: #{invited_survey ? 'Evaluation Survey' : 'Self-Assessment'}"
 
-  # Loop through each answer in the survey response and add rows to Excel
-  @survey_response.answers.includes(:question).each do |answer|
-    # Get supervisor and supervisee responses (ensuring supervisor_response exists)
-    supervisor_choice = supervisor_response ? get_answer(supervisor_response, answer.question.id) : nil
-    supervisee_choice = supervisee_average ? (supervisee_average[answer.question.id] || nil) : nil
+  if invited_survey
+    # Evaluation surveys → Only User's Response
+    sheet.add_row ['Question', 'Response']
 
-    # Debugging: Log the values before adding them to the sheet
-    Rails.logger.info "Q: #{answer.question.text} | User: #{choices[answer.choice]} | Supervisor: #{supervisor_choice} | Supervisee: #{supervisee_choice}"
+    @survey_response.answers.includes(:question).each do |answer|
+      sheet.add_row [
+        answer.question.text,       # Question text
+        choices[answer.choice]      # User's response
+      ]
+    end
+  else
+    # Self-Assessment surveys → Include Supervisor & Supervisee responses
+    sheet.add_row ['Question', 'Response', "Supervisor's Response", "Supervisee's Response"]
 
-    # Add row for each question with responses from user, supervisor, and supervisees
-    sheet.add_row [
-      answer.question.text,                          # Question text
-      choices[answer.choice],                        # User's response
-      supervisor_choice.nil? ? 'NE' : choices[supervisor_choice], # Supervisor's response or 'NE'
-      supervisee_choice.nil? ? 'NE' : choices[supervisee_choice] # Supervisee's response or 'NE'
-    ]
+    @survey_response.answers.includes(:question).each do |answer|
+      # Get supervisor and supervisee responses (only for self-assessments)
+      supervisor_choice = supervisor_response ? get_answer(supervisor_response, answer.question.id) : nil
+      supervisee_choice = supervisee_average ? (supervisee_average[answer.question.id] || nil) : nil
+
+      # Debugging: Log the values before adding them to the sheet
+      Rails.logger.info "Q: #{answer.question.text} | User: #{choices[answer.choice]} | Supervisor: #{supervisor_choice} | Supervisee: #{supervisee_choice}"
+
+      # Add row for each question with responses from user, supervisor, and supervisees
+      sheet.add_row [
+        answer.question.text,                          # Question text
+        choices[answer.choice],                        # User's response
+        supervisor_choice.nil? ? 'NE' : choices[supervisor_choice], # Supervisor's response or 'NE'
+        supervisee_choice.nil? ? 'NE' : choices[supervisee_choice]   # Supervisee's response or 'NE'
+      ]
+    end
   end
 end

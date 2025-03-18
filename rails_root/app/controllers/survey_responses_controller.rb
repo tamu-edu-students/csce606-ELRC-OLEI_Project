@@ -29,17 +29,25 @@ class SurveyResponsesController < ApplicationController
   
     set_survey_sections # Ensure sections are correctly set
   
+    invited_survey = InvitationClaim.exists?(survey_response_id: @survey_response.id)
+  
     flash.keep(:warning)
   
     respond_to do |format|
-      format.html
-      format.xlsx do
-        response.headers['Content-Disposition'] = "attachment; filename=survey_response_#{@survey_response.id}.xlsx"
+      if invited_survey
+        format.html { render 'survey_responses/show_invitation' }
+        format.xlsx do
+          response.headers['Content-Disposition'] = "attachment; filename=evaluation_survey_#{@survey_response.id}.xlsx"
+        end
+      else
+        format.html { render 'survey_responses/show' }
+        format.xlsx do
+          response.headers['Content-Disposition'] = "attachment; filename=survey_response_#{@survey_response.id}.xlsx"
+        end
       end
     end
   end
-   
-
+  
   def current_user_id
     session[:userinfo]['sub'] if session.dig(:userinfo, 'sub').present? && !session[:userinfo]['sub'].nil?
   end

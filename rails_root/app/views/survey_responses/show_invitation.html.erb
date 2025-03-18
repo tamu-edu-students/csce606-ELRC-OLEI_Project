@@ -1,0 +1,112 @@
+<main>
+  <h1 class="text-center">Survey Response</h1>
+
+  <div class="container-lg">
+    <h3 class="text-center">Your Responses</h3>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Question</th>
+          <th class="text-center">Your Response</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% choices = ["Strongly Disagree", "Disagree", "Agree", "Strongly Agree"] %>
+        <% @survey_response.answers.includes(:question).each do |answer| %>
+          <tr>
+            <td><%= answer.question.text %></td>
+            <td class="text-center"><%= choices[answer.choice] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <hr>
+
+  <%# Invitation Button (Only if the user is not an admin) %>
+  <div class="row d-flex justify-content-center">
+    <div class="col-8 btn-group" role="group">
+      <% unless user_is_admin? %>
+        <%= link_to "Edit Response",
+            edit_survey_response_path(@survey_response),
+            class: "btn btn-outline-primary" %>
+
+        <%= button_tag "Create Invitation",
+          data: { parent_survey_response_id: @survey_response.id },
+          id: "invitation-button",
+          class: "btn btn-outline-success"
+        %>
+      <% end %>
+
+      <%= link_to "Download Response (Excel)", 
+          survey_response_path(@survey_response, 
+          format: :xlsx), class: "btn btn-outline-primary"
+      %>
+
+      <%= button_to "Delete Response",
+          @survey_response,
+          method: :delete,
+          form_class: "btn btn-outline-danger",
+          class: "btn-passthrough"
+      %>
+    </div>
+  </div>
+
+  <br>
+
+  <%# Links to go back %>
+  <div class="row d-flex justify-content-center">
+    <div class="col-6 text-center">
+      <div class="row">
+        <% unless !user_is_admin? %>
+        <div class="col-12">
+          <%= link_to "Back to Dashboard", admin_dashboard_path, class: "btn btn-link" %>
+        </div>
+        <% end %>
+        <% unless user_is_admin? %>
+        <div class="col-12">
+          <%= link_to "Back to Home", root_path, class: "btn btn-link" %>
+        </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%# JavaScript for the invitation button %>
+<script>
+  function initializeInvitation() {
+    var invitationButton = document.getElementById('invitation-button');
+    var invitationLinkContainer = document.getElementById('invitation-link-container');
+    var invitationLink = document.getElementById('invitation-link');
+
+    invitationButton.addEventListener('click', function() {
+      var parentSurveyResponseId = this.getAttribute('data-parent-survey-response-id');
+
+      fetch('/invitations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ parent_survey_response_id: parentSurveyResponseId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        invitationLink.textContent = data.invitation_url;
+        invitationLinkContainer.style.display = 'block';
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeInvitation);
+  } else {
+    initializeInvitation();
+  }
+</script>
