@@ -167,14 +167,28 @@ class SurveyResponsesController < ApplicationController
   # DELETE /survey_responses/1 or /survey_responses/1.json
   def destroy
     ActiveRecord::Base.transaction do
-      # Delete associated survey answers
-      SurveyAnswer.where(response_id: @survey_response.id).destroy_all
+      Rails.logger.info "Starting deletion of SurveyResponse ID: #{@survey_response.id}"
   
-      # Delete associated invitations
-      Invitation.where(response_id: @survey_response.id).destroy_all
+      # 1. Find the invitation claims associated with this response
+      invitation_claims_deleted = InvitationClaim.where(survey_response_id: @survey_response.id).destroy_all
+      Rails.logger.info "Deleted #{invitation_claims_deleted.count} invitation claims for SurveyResponse ID: #{@survey_response.id}"
   
-      # Finally, destroy the survey response
-      @survey_response.destroy!
+      # 2. Check if this survey response was created via an invitation
+      associated_invitation = Invitation.find_by(response_id: @survey_response.id)
+  
+      # If this was an invitee's response, remove only their reference, NOT the invitation itself
+      associated_invitation.update(response_id: nil) if associated_invitation
+  
+      # 3. Delete all answers associated with this response
+      survey_answers_deleted = SurveyAnswer.where(response_id: @survey_response.id).destroy_all
+      Rails.logger.info "Deleted #{survey_answers_deleted.count} survey answers for SurveyResponse ID: #{@survey_response.id}"
+  
+      # 4. Finally, delete the survey response itself
+      if @survey_response.destroy!
+        Rails.logger.info "Successfully deleted SurveyResponse ID: #{@survey_response.id}"
+      else
+        Rails.logger.warn "Failed to delete SurveyResponse ID: #{@survey_response.id}"
+      end
     end
   
     respond_to do |format|
@@ -186,13 +200,12 @@ class SurveyResponsesController < ApplicationController
       format.json { head :no_content }
     end
   rescue ActiveRecord::RecordNotDestroyed => e
+    Rails.logger.error "Failed to delete SurveyResponse: #{e.message}"
     respond_to do |format|
       format.html { redirect_back fallback_location: root_path, alert: "Failed to destroy survey response: #{e.message}" }
       format.json { render json: { error: e.message }, status: :unprocessable_entity }
     end
-  end
-  
-  
+  end  
 
   private
 
