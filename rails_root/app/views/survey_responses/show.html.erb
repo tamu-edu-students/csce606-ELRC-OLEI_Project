@@ -1,6 +1,6 @@
-<% supervisor_response = find_supervisor(@survey_response)%>
+<% supervisor_average = average_of_supervisors(@survey_response)%>
 <% supervisee_average = average_of_supervisees(@survey_response)%>
-<% combined_view = ["Board Member", "Superintendent", "Assistant/Associate Superintendent", "Principal", "Assistant Principal", "Counselor", "Teacher Leader (Specialist)", "Teacher", "Other Instructional Staff", "Non-Instructional Staff"].include?(@survey_response.profile.role) && !(supervisee_average.nil? && supervisor_response.nil?) %>
+<% combined_view = ["Board Member", "Superintendent", "Assistant/Associate Superintendent", "Principal", "Assistant Principal", "Counselor", "Teacher Leader (Specialist)", "Teacher", "Other Instructional Staff", "Non-Instructional Staff"].include?(@survey_response.profile.role) && !(supervisee_average.nil? && supervisor_average.nil?) %>
 <% colors = ["table-slight-red", "table-mild-red", "table-medium-red", "table-strong-red"] %>
 <% difference_text = ["Synergized", "Slightly Misaligned", "Misaligned", "Severely Misaligned"] %>
 <% value_text = ["(1) Leadership", "(2) External Forces", "(3) Organizational Structure", "(4) Values, Attributes, and Beliefs"] %>
@@ -20,8 +20,8 @@
       <div id="supervisee-tetrahedron" class="col-5 text-center">vs. Supervisee Review</div>
     </div>
 
-    <% unless supervisor_response.nil? %>
-    <% supervisor_alignment = get_part_difference(@survey_response, supervisor_response) %>
+    <% unless supervisor_average.nil? %>
+    <% supervisor_alignment = get_part_difference(@survey_response, supervisor_average) %>
     <% Rails.logger.info "Supervisor Alignment: #{supervisor_alignment.inspect}" %>
     <% end %>
 
@@ -37,7 +37,7 @@
         <thead>
           <tr>
             <th>Key Factor</th>
-            <% unless supervisor_response.nil? %>
+            <% unless supervisor_average.nil? %>
             <th class="text-center">Supervisor</th>
             <% end %>
 
@@ -56,7 +56,7 @@
                 </span>
                 <%= value %>
               </td>
-              <% unless supervisor_response.nil? %>
+              <% unless supervisor_average.nil? %>
               <% synergism = supervisor_alignment[idx] %> 
               <td class="<%= colors[synergism] %>">
                 <div class="<%= colors[synergism] %> text-center"><%= difference_text[synergism] %> </div>
@@ -141,11 +141,11 @@
                   <td class="text-center"><%= choices[ans.choice] %></td>
 
                   <!-- Supervisor's Response -->
-                  <% if supervisor_response.nil? %>
+                  <% if supervisor_average.nil? %>
                     <td class="text-center">NE</td>
                   <% else %>
-                    <% supervisor_choice = get_answer(supervisor_response, ans.question.id) %>
-                    <td class="text-center"><%= supervisor_choice.nil? ? "NE" : choices[supervisor_choice] %></td>
+                    <% supervisor_choice = get_answer(supervisor_average, ans.question.id) %>
+                    <td class="text-center"><%= supervisor_choice == "NE" ? "NE" : choices[supervisor_choice] %></td>
                   <% end %>
 
                   <!-- Supervisee's Response -->
@@ -284,7 +284,7 @@
 <script type="module">
   import { loadModel } from  "tetrahedron"
 
-  <% unless supervisor_response.nil? %>
+  <% unless supervisor_average.nil? %>
   console.log("Loading Supervisor Tetrahedron: <%= supervisor_alignment.join('_') %>");
   loadModel("supervisor-tetrahedron", "<%= supervisor_alignment.join('_') %>")
   <% end %>

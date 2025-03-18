@@ -8,7 +8,7 @@ wb.add_worksheet(name: "Survey Response #{@survey_response.id}") do |sheet|
   choices = ['Strongly Disagree', 'Disagree', 'Agree', 'Strongly Agree']
 
   # Ensure supervisor response is retrieved (only for self-assessments)
-  supervisor_response = find_supervisor(@survey_response) unless invited_survey
+  supervisor_response = average_of_supervisors(@survey_response) unless invited_survey
   
   # Ensure supervisee responses are averaged (only for self-assessments)
   supervisee_average = average_of_supervisees(@survey_response) unless invited_survey
