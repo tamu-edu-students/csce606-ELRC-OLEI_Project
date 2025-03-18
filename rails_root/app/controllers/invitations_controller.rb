@@ -45,11 +45,17 @@ class InvitationsController < ApplicationController
       share_code: sharecode_from_invitation
     )
   
-    # Store claims separately instead of overwriting
-    InvitationClaim.create!(
-      invitation: @invitation,
-      survey_profile: user_profile,
-      survey_response: @new_response_to_fill
-    )
-  end
+    # ✅ Check if the user has already claimed this invitation
+    existing_claim = InvitationClaim.find_by(invitation: @invitation, survey_profile: user_profile)
+  
+    unless existing_claim
+      InvitationClaim.create!(
+        invitation: @invitation,
+        survey_profile: user_profile,
+        survey_response: @new_response_to_fill
+      )
+    else
+      Rails.logger.info "User #{user_profile.id} has already claimed invitation #{@invitation.id}"
+    end
+  end    
 end  

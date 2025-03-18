@@ -19,23 +19,34 @@ class HomeController < ApplicationController
 
   def fetch_survey_responses
     SurveyResponse.where(profile_id: @survey_profile.id)
+                  .where.not(id: InvitationClaim.select(:survey_response_id).where.not(survey_profile_id: @survey_profile.id))
   end
-
+  
   def fetch_invitations
     @survey_responses.map do |response|
-      invitation = Invitation.find_by(response_id: response.id)
+      # Find the invitation that was originally created for this response
+      invitation = Invitation.joins(:claims).find_by(invitation_claims: { survey_response_id: response.id })
       invitation ? fetch_invited_by(invitation) : 'N/A'
     end
   end
-
+  
   def fetch_invited_by(invitation)
-    parent_response = SurveyResponse.find(invitation.parent_response_id)
-    profile = SurveyProfile.find(parent_response.profile_id) if parent_response
-    "#{profile.first_name} #{profile.last_name}" if profile
+    # Get the response that originally created the invitation
+    parent_response = SurveyResponse.find_by(id: invitation.parent_response_id)
+  
+    # Ensure the parent response has a valid profile
+    if parent_response&.profile
+      "#{parent_response.profile.first_name} #{parent_response.profile.last_name}"
+    else
+      "N/A"
+    end
   end
+  
 
   def invite_token(response)
-    invitation = Invitation.find_by(response_id: response.id)
-    invitation ? invitation.token : 'N/A'
-  end
+    invitations = Invitation.joins(:claims).where(invitation_claims: { survey_response_id: response.id })
+    return "N/A" if invitations.empty?
+  
+    invitations.map(&:token).join(", ") # Show all invite tokens
+  end  
 end

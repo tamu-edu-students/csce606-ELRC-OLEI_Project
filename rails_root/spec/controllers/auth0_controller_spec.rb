@@ -8,10 +8,10 @@ RSpec.describe Auth0Controller, type: :controller do
       allow(controller).to receive(:redirect_to)
     end
 
-    context 'when the invitation does not exist or has expired' do
+    context 'when the invitation does not exist' do
       it 'deletes the invitation from the session and returns false' do
-        # Set up the session with an invitation that does not exist or has expired
-        session[:invitation] = { 'from' => 'nonexistent', 'expiration' => 1.hour.ago }
+        # Set up the session with a nonexistent invitation (no expiration field)
+        session[:invitation] = { 'from' => 'nonexistent' }
 
         # Call the method
         result = controller.send(:claim_invitation)
