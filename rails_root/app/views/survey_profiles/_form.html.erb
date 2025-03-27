@@ -31,8 +31,32 @@
       <%= form.label :role, style: "display: block;text-transform: uppercase;" %>
       <%= form.select :role,["Board Member", "Superintendent", "Assistant/Associate Superintendent", "Principal", "Assistant Principal", "Counselor", "Teacher Leader (Specialist)", "Teacher", "Other Instructional Staff", "Non-Instructional Staff"], {prompt: 'Select a role'}, class: "form-select" %>
     </div>
+    <div class="mb-3" id="custom-role-field" style="<%= ['Other Instructional Staff', 'Non-Instructional Staff'].include?(survey_profile.role) ? '' : 'display:none;' %>">
+      <%= form.label :custom_role, "Please specify your role", style: "display: block;text-transform: uppercase;" %>
+      <%= form.text_field :custom_role, class: "form-control", pattern: "[A-Za-z ]*", title: "Only letters and spaces allowed" %>
+    </div>
     <div class="mb-3 text-center">
       <%= form.submit class: "btn btn-outline-primary" %>
     </div>
   </div>
 <% end %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const roleSelect = document.querySelector('#survey_profile_role');
+    const customRoleField = document.querySelector('#custom-role-field');
+
+    if (roleSelect) {
+      roleSelect.addEventListener('change', function() {
+        const selected = roleSelect.value;
+        if (["Other Instructional Staff", "Non-Instructional Staff"].includes(selected)) {
+          customRoleField.style.display = '';
+        } else {
+          customRoleField.style.display = 'none';
+          const input = customRoleField.querySelector('input');
+          if (input) input.value = '';
+        }
+      });
+    }
+  });
+</script>

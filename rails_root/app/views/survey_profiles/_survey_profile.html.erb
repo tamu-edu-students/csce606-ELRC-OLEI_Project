@@ -24,7 +24,13 @@
 
         <tr>
           <td style="width: 25%"><strong style="text-transform: uppercase">Role</strong></td>
-          <td><%= survey_profile.role %></td>
+          <td>
+            <% if ["Other Instructional Staff", "Non-Instructional Staff"].include?(survey_profile.role) && survey_profile.custom_role.present? %>
+              <%= survey_profile.custom_role %>
+            <% else %>
+              <%= survey_profile.role %>
+            <% end %>
+          </td>
         </tr>
       </tbody>
     </table>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_02_12_195415) do
+ActiveRecord::Schema[7.1].define(version: 2025_03_27_035238) do
   create_table "invitation_claims", force: :cascade do |t|
     t.integer "invitation_id", null: false
     t.integer "survey_profile_id", null: false
@@ -56,6 +56,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_02_12_195415) do
     t.datetime "updated_at", null: false
     t.integer "role", default: 0
     t.integer "supervisor_id"
+    t.string "custom_role"
     t.index ["user_id"], name: "index_survey_profiles_on_user_id", unique: true
   end
 
