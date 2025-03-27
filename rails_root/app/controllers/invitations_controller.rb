@@ -14,22 +14,26 @@ class InvitationsController < ApplicationController
 
   def show
     @invitation = Invitation.find_by(token: params[:token])
-
+  
     if @invitation.nil?
       redirect_to not_found_invitations_path
     else
       @invitation.update(visited: true) unless @invitation.visited
-
+  
       if session[:userinfo].present?
         user_id = session[:userinfo]['sub']
         user_profile = SurveyProfile.find_by(user_id:)
-
-        claim_invitation(user_profile) if user_profile
+  
+        if user_profile
+          claim_invitation(user_profile)
+          session[:page_number] = 1  # ✅ Reset page number here
+          session[:survey_id] = nil
+        end
       end
-
+  
       session[:invitation] = { from: @invitation.id }
     end
-  end
+  end  
 
   def not_found
     render :not_found
