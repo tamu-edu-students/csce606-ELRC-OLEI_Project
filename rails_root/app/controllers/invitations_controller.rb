@@ -23,17 +23,24 @@ class InvitationsController < ApplicationController
       if session[:userinfo].present?
         user_id = session[:userinfo]['sub']
         user_profile = SurveyProfile.find_by(user_id:)
+        inviter_profile = @invitation.parent_response.profile
   
         if user_profile
-          claim_invitation(user_profile)
-          session[:page_number] = 1  # ✅ Reset page number here
-          session[:survey_id] = nil
+          if user_profile.id == inviter_profile.id
+            flash[:alert] = "You cannot respond to your own invitation."
+            redirect_to root_path and return
+          else
+            claim_invitation(user_profile)
+            session[:page_number] = 1
+            session[:survey_id] = nil
+          end
         end
       end
   
       session[:invitation] = { from: @invitation.id }
     end
-  end  
+  end
+    
 
   def not_found
     render :not_found
@@ -42,6 +49,14 @@ class InvitationsController < ApplicationController
   private
 
   def claim_invitation(user_profile)
+    existing_claim = InvitationClaim.find_by(invitation: @invitation, survey_profile: user_profile)
+  
+    if existing_claim
+      flash[:alert] = "You have already claimed this invitation. Redirecting to your response."
+      # Redirect to the existing response if it exists
+      redirect_to edit_survey_response_path(existing_claim.survey_response) and return
+    end
+  
     sharecode_from_invitation = @invitation.parent_response.share_code
   
     @new_response_to_fill = SurveyResponse.create!(
@@ -49,17 +64,10 @@ class InvitationsController < ApplicationController
       share_code: sharecode_from_invitation
     )
   
-    # ✅ Check if the user has already claimed this invitation
-    existing_claim = InvitationClaim.find_by(invitation: @invitation, survey_profile: user_profile)
-  
-    unless existing_claim
-      InvitationClaim.create!(
-        invitation: @invitation,
-        survey_profile: user_profile,
-        survey_response: @new_response_to_fill
-      )
-    else
-      Rails.logger.info "User #{user_profile.id} has already claimed invitation #{@invitation.id}"
-    end
-  end    
-end  
+    InvitationClaim.create!(
+      invitation: @invitation,
+      survey_profile: user_profile,
+      survey_response: @new_response_to_fill
+    )
+  end   
+end
