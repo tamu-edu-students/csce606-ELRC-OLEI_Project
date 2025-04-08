@@ -95,11 +95,10 @@ class SurveyResponsesController < ApplicationController
     return respond_with_error 'invalid_form' if invalid_form?
     return return_to_root 'You are not logged in.' if current_user_id.nil?
     return return_to_root 'Your profile could not be found. Please complete your profile.' unless SurveyProfile.exists?(user_id: current_user_id)
-
+  
     @survey_response = SurveyResponse.create_from_params current_user_id, survey_response_params
     session[:survey_id] = @survey_response.id
-
-
+  
     respond_to do |format|
       if params[:commit].in?(%w[Save Next])
         format.html do
@@ -113,7 +112,11 @@ class SurveyResponsesController < ApplicationController
         end
       else
         format.html do
-          redirect_to survey_response_url(@survey_response), notice: 'Survey response was successfully created.'
+          if user_is_admin?
+            redirect_to admin_dashboard_path, notice: 'Survey response was successfully created. Redirected to Admin Dashboard.'
+          else
+            redirect_to survey_response_url(@survey_response), notice: 'Survey response was successfully created.'
+          end
         end
         format.json { render :show, status: :created, location: @survey_response }
       end
